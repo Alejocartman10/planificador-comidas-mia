@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    
     <title>Planificador de Menú Natural Premium</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,17 +16,16 @@
 
     <style>
         :root {
-            /* PALETA PREMIUM DORADO ÁMBAR Y ANTRACITA */
-            --bg-page: #f4f4f5; /* Gris piedra muy sutil */
+            --bg-page: #f4f4f5; 
             --bg-card: #ffffff;
-            --text-primary: #18181b; /* Gris Antracita casi negro */
-            --text-secondary: #71717a; /* Gris medio elegante */
-            --accent-main: #d97706; /* Dorado Ámbar Premium */
-            --accent-hover: #b45309; /* Dorado Oscuro para botones */
-            --danger: #e11d48; /* Rojo Carmesí */
+            --text-primary: #18181b; 
+            --text-secondary: #71717a; 
+            --accent-main: #d97706; 
+            --accent-hover: #b45309; 
+            --danger: #e11d48; 
             --danger-hover: #be123c;
             --border-light: #e4e4e7;
-            --results-bg: #fffbeb; /* Fondo muy tenue y cálido para resultados */
+            --results-bg: #fffbeb; 
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
@@ -96,7 +97,7 @@
             flex: 1;
         }
 
-        /* FIX PARA SAFARI Y CHROME MÓVIL */
+        /* FIX DEFINITIVO PARA SAFARI Y CHROME MÓVIL */
         input {
             width: 100%;
             padding: 14px;
@@ -105,16 +106,17 @@
             text-align: center;
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
-            background-color: #ffffff;
-            color: var(--text-primary);
-            -webkit-text-fill-color: var(--text-primary); /* Fuerza el color oscuro en iOS */
-            appearance: none; /* Evita estilos nativos del celular */
+            background-color: #ffffff !important;
+            color: #18181b !important;
+            -webkit-text-fill-color: #18181b !important;
+            opacity: 1 !important;
+            appearance: none; 
             transition: all 0.2s;
         }
         
         input::placeholder {
-            color: #a1a1aa;
-            -webkit-text-fill-color: #a1a1aa;
+            color: #a1a1aa !important;
+            -webkit-text-fill-color: #a1a1aa !important;
             opacity: 1;
         }
         
