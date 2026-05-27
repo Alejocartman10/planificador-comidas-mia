@@ -3,124 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planificador de Menú Natural</title>
+    <title>Planificador de Menú Natural Premium</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f9fc;
-            color: #333;
+        /* --- ESTILOS GENERALES Y PALETA DE COLORES --- */
+        :root {
+            --bg-page: #f9fafb; /* Gris extremadamente claro */
+            --bg-card: #ffffff; /* Blanco puro */
+            --text-primary: #111827; /* Pizarra profundo */
+            --text-secondary: #6b7280; /* Gris medio */
+            --accent-main: #0ea5e9; /* Cian vibrante */
+            --accent-hover: #0284c7; /* Cian oscuro para hover */
+            --border-light: #e5e7eb; /* Gris borde sutil */
+            --results-bg: #f1f5f9; /* Fondo sección resultados */
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
         }
+
+        /* --- CONTENEDOR PRINCIPAL PREMIUM --- */
         .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
         }
+
+        /* --- CABECERA --- */
         h1 {
             text-align: center;
-            color: #2c3e50;
-            font-size: 1.5rem;
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
+        
+        h1 ion-icon {
+            color: var(--accent-main);
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        /* --- FORMULARIO E INPUTS --- */
+        .ingredient-group {
+            border-top: 1px solid var(--border-light);
+            padding-top: 10px;
+            margin-bottom: 25px;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 15px;
         }
+
         label {
-            font-weight: 600;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
         }
+        
+        label ion-icon {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
         input {
-            width: 80px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            width: 100px;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
             text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #fff;
         }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--accent-main);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        /* --- BOTÓN PREMIUM --- */
         button {
             width: 100%;
-            padding: 15px;
-            background-color: #3498db;
+            padding: 18px;
+            background-color: var(--accent-main);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.3s;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2);
         }
+
         button:hover {
-            background-color: #2980b9;
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(14, 165, 233, 0.25);
         }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* --- SECCIÓN RESULTADOS PREMIUM --- */
         .results {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #e8f4f8;
-            border-radius: 8px;
+            margin-top: 35px;
+            padding: 30px;
+            background-color: var(--results-bg);
+            border-radius: 16px;
             display: none;
+            border: 1px solid var(--border-light);
         }
+
         .results h2 {
-            font-size: 1.2rem;
-            color: #2980b9;
-            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        
+        .results h2 ion-icon {
+            color: var(--accent-main);
+            font-size: 1.4rem;
+        }
+
+        /* --- TARJETAS DE RESULTADOS --- */
         .result-item {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            border-bottom: 1px dashed #bcdcfa;
-            padding-bottom: 4px;
+            align-items: center;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.03);
         }
+        
+        .result-item span:first-child {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .result-item span:last-child {
+            color: var(--accent-main);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* --- DESTACADO TOTALES --- */
         .total-highlight {
-            font-weight: bold;
-            color: #e74c3c;
+            background-color: var(--accent-main);
+            border-color: var(--accent-main);
         }
+        
+        .total-highlight span:first-child {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .total-highlight span:last-child {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🐾 Planificador Menú de Mía</h1>
-    <p style="text-align: center; color: #7f8c8d; font-size: 0.9rem;">Ingresa los gramos diarios requeridos:</p>
+    <h1><ion-icon name="paw-outline"></ion-icon> Planificador Mía</h1>
+    <p class="subtitle">Ingresa los gramos diarios requeridos:</p>
     
-    <div id="ingredients">
-        <div class="form-group"><label>🍗 Pollo (g):</label><input type="number" id="pollo" value="350"></div>
-        <div class="form-group"><label>🥚 Huevo (g):</label><input type="number" id="huevo" value="60"></div>
-        <div class="form-group"><label>🍠 Batata (g):</label><input type="number" id="batata" value="80"></div>
-        <div class="form-group"><label>🥬 Apio (g):</label><input type="number" id="apio" value="90"></div>
-        <div class="form-group"><label>🫐 Arándanos (g):</label><input type="number" id="arandanos" value="15"></div>
+    <div id="ingredients" class="ingredient-group">
+        <div class="form-group"><label><ion-icon name="restaurant-outline"></ion-icon> Pollo (g):</label><input type="number" id="pollo" value="350"></div>
+        <div class="form-group"><label><ion-icon name="egg-outline"></ion-icon> Huevo (g):</label><input type="number" id="huevo" value="60"></div>
+        <div class="form-group"><label><ion-icon name="leaf-outline"></ion-icon> Batata (g):</label><input type="number" id="batata" value="80"></div>
+        <div class="form-group"><label><ion-icon name="nutrition-outline"></ion-icon> Apio (g):</label><input type="number" id="apio" value="90"></div>
+        <div class="form-group"><label><ion-icon name="flask-outline"></ion-icon> Arándanos (g):</label><input type="number" id="arandanos" value="15"></div>
     </div>
     
-    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-    
     <div class="form-group">
-        <label>Comidas al día:</label>
-        <input type="number" id="comidas" value="2" min="1" max="5">
-    </div>
-    <div class="form-group">
-        <label>Días de Meal Prep:</label>
+        <label><ion-icon name="basket-outline"></ion-icon> Días de Prep:</label>
         <input type="number" id="dias" value="7" min="1" max="30">
+    </div>
+
+    <div class="form-group">
+        <label><ion-icon name="pizza-outline"></ion-icon> Comidas al día:</label>
+        <input type="number" id="comidas" value="2" min="1" max="5">
     </div>
 
     <button onclick="calcularMenu()">Calcular Menú</button>
 
     <div class="results" id="resultados">
-        <h2>🛍️ Porción por Bolsa (Cada Comida)</h2>
+        <h2><ion-icon name="bag-check-outline"></ion-icon> Porción por Bolsa</h2>
         <div id="lista-bolsa"></div>
         
-        <h2 style="margin-top: 20px;">🛒 Lista de Compras (Semanal)</h2>
+        <h2 style="margin-top: 30px;"><ion-icon name="cart-outline"></ion-icon> Lista de Compras Total</h2>
         <div id="lista-compras"></div>
     </div>
 </div>
 
 <script>
     function calcularMenu() {
-        // Obtener valores
+        // Obtener valores de los inputs
         const pollo = parseFloat(document.getElementById('pollo').value) || 0;
         const huevo = parseFloat(document.getElementById('huevo').value) || 0;
         const batata = parseFloat(document.getElementById('batata').value) || 0;
@@ -131,7 +269,7 @@
         const dias = parseInt(document.getElementById('dias').value) || 1;
 
         const ingredientes = {
-            "Pollo": pollo,
+            "Pollo Magro": pollo,
             "Huevo": huevo,
             "Batata": batata,
             "Apio": apio,
@@ -143,15 +281,15 @@
         let htmlCompras = '';
         let totalCompras = 0;
 
-        // Cálculos
+        // --- CÁLCULOS PRINCIPALES ---
         for (const [nombre, gramosDiarios] of Object.entries(ingredientes)) {
             if (gramosDiarios > 0) {
-                // Cálculo por bolsa
+                // Cálculo 1: Por bolsa individual
                 const gramosPorBolsa = gramosDiarios / comidas;
                 totalBolsa += gramosPorBolsa;
                 htmlBolsa += `<div class="result-item"><span>${nombre}</span><span>${gramosPorBolsa.toFixed(1)} g</span></div>`;
                 
-                // Cálculo compras (Total prep)
+                // Cálculo 2: Total compras para el meal prep
                 const gramosTotal = gramosDiarios * dias;
                 totalCompras += gramosTotal;
                 let textoCompra = gramosTotal >= 1000 ? `${(gramosTotal/1000).toFixed(2)} kg` : `${gramosTotal} g`;
@@ -159,16 +297,19 @@
             }
         }
 
-        // Agregar totales
-        htmlBolsa += `<div class="result-item total-highlight"><span>TOTAL POR BOLSA</span><span>${totalBolsa.toFixed(1)} g</span></div>`;
+        // --- AGREGAR TARJETAS DE TOTALES DESTACADAS ---
+        htmlBolsa += `<div class="result-item total-highlight"><span>TOTAL BOLSA</span><span>${totalBolsa.toFixed(1)} g</span></div>`;
         
         let textoTotalCompras = totalCompras >= 1000 ? `${(totalCompras/1000).toFixed(2)} kg` : `${totalCompras} g`;
         htmlCompras += `<div class="result-item total-highlight"><span>TOTAL A PREPARAR</span><span>${textoTotalCompras}</span></div>`;
 
-        // Mostrar resultados
+        // --- MOSTRAR RESULTADOS ---
         document.getElementById('lista-bolsa').innerHTML = htmlBolsa;
         document.getElementById('lista-compras').innerHTML = htmlCompras;
         document.getElementById('resultados').style.display = 'block';
+        
+        // Scroll automático suave hacia los resultados para móvil
+        document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
     }
 </script>
 
