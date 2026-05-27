@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Menú Natural</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        label {
+            font-weight: 600;
+        }
+        input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            text-align: center;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 8px;
+            display: none;
+        }
+        .results h2 {
+            font-size: 1.2rem;
+            color: #2980b9;
+            margin-top: 0;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #bcdcfa;
+            padding-bottom: 4px;
+        }
+        .total-highlight {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🐾 Planificador Menú de Mía</h1>
+    <p style="text-align: center; color: #7f8c8d; font-size: 0.9rem;">Ingresa los gramos diarios requeridos:</p>
+    
+    <div id="ingredients">
+        <div class="form-group"><label>🍗 Pollo (g):</label><input type="number" id="pollo" value="350"></div>
+        <div class="form-group"><label>🥚 Huevo (g):</label><input type="number" id="huevo" value="60"></div>
+        <div class="form-group"><label>🍠 Batata (g):</label><input type="number" id="batata" value="80"></div>
+        <div class="form-group"><label>🥬 Apio (g):</label><input type="number" id="apio" value="90"></div>
+        <div class="form-group"><label>🫐 Arándanos (g):</label><input type="number" id="arandanos" value="15"></div>
+    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+    
+    <div class="form-group">
+        <label>Comidas al día:</label>
+        <input type="number" id="comidas" value="2" min="1" max="5">
+    </div>
+    <div class="form-group">
+        <label>Días de Meal Prep:</label>
+        <input type="number" id="dias" value="7" min="1" max="30">
+    </div>
+
+    <button onclick="calcularMenu()">Calcular Menú</button>
+
+    <div class="results" id="resultados">
+        <h2>🛍️ Porción por Bolsa (Cada Comida)</h2>
+        <div id="lista-bolsa"></div>
+        
+        <h2 style="margin-top: 20px;">🛒 Lista de Compras (Semanal)</h2>
+        <div id="lista-compras"></div>
+    </div>
+</div>
+
+<script>
+    function calcularMenu() {
+        // Obtener valores
+        const pollo = parseFloat(document.getElementById('pollo').value) || 0;
+        const huevo = parseFloat(document.getElementById('huevo').value) || 0;
+        const batata = parseFloat(document.getElementById('batata').value) || 0;
+        const apio = parseFloat(document.getElementById('apio').value) || 0;
+        const arandanos = parseFloat(document.getElementById('arandanos').value) || 0;
+        
+        const comidas = parseInt(document.getElementById('comidas').value) || 1;
+        const dias = parseInt(document.getElementById('dias').value) || 1;
+
+        const ingredientes = {
+            "Pollo": pollo,
+            "Huevo": huevo,
+            "Batata": batata,
+            "Apio": apio,
+            "Arándanos": arandanos
+        };
+
+        let htmlBolsa = '';
+        let totalBolsa = 0;
+        let htmlCompras = '';
+        let totalCompras = 0;
+
+        // Cálculos
+        for (const [nombre, gramosDiarios] of Object.entries(ingredientes)) {
+            if (gramosDiarios > 0) {
+                // Cálculo por bolsa
+                const gramosPorBolsa = gramosDiarios / comidas;
+                totalBolsa += gramosPorBolsa;
+                htmlBolsa += `<div class="result-item"><span>${nombre}</span><span>${gramosPorBolsa.toFixed(1)} g</span></div>`;
+                
+                // Cálculo compras (Total prep)
+                const gramosTotal = gramosDiarios * dias;
+                totalCompras += gramosTotal;
+                let textoCompra = gramosTotal >= 1000 ? `${(gramosTotal/1000).toFixed(2)} kg` : `${gramosTotal} g`;
+                htmlCompras += `<div class="result-item"><span>${nombre}</span><span>${textoCompra}</span></div>`;
+            }
+        }
+
+        // Agregar totales
+        htmlBolsa += `<div class="result-item total-highlight"><span>TOTAL POR BOLSA</span><span>${totalBolsa.toFixed(1)} g</span></div>`;
+        
+        let textoTotalCompras = totalCompras >= 1000 ? `${(totalCompras/1000).toFixed(2)} kg` : `${totalCompras} g`;
+        htmlCompras += `<div class="result-item total-highlight"><span>TOTAL A PREPARAR</span><span>${textoTotalCompras}</span></div>`;
+
+        // Mostrar resultados
+        document.getElementById('lista-bolsa').innerHTML = htmlBolsa;
+        document.getElementById('lista-compras').innerHTML = htmlCompras;
+        document.getElementById('resultados').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
