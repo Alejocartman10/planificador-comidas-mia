@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planificador de Menú Natural Dinámico</title>
+    <title>Planificador de Menú Natural Premium</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,18 +14,19 @@
 
     <style>
         :root {
-            --bg-page: #f9fafb;
+            /* PALETA PREMIUM DORADO ÁMBAR Y ANTRACITA */
+            --bg-page: #f4f4f5; /* Gris piedra muy sutil */
             --bg-card: #ffffff;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --accent-main: #0ea5e9;
-            --accent-hover: #0284c7;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --border-light: #e5e7eb;
-            --results-bg: #f1f5f9;
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --text-primary: #18181b; /* Gris Antracita casi negro */
+            --text-secondary: #71717a; /* Gris medio elegante */
+            --accent-main: #d97706; /* Dorado Ámbar Premium */
+            --accent-hover: #b45309; /* Dorado Oscuro para botones */
+            --danger: #e11d48; /* Rojo Carmesí */
+            --danger-hover: #be123c;
+            --border-light: #e4e4e7;
+            --results-bg: #fffbeb; /* Fondo muy tenue y cálido para resultados */
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,20 +47,21 @@
             max-width: 550px;
             background: var(--bg-card);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-light);
+            border: 1px solid rgba(0,0,0,0.04);
         }
 
         h1 {
             text-align: center;
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             font-weight: 700;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            letter-spacing: -0.5px;
         }
         
         h1 ion-icon { color: var(--accent-main); font-size: 2.2rem; }
@@ -68,16 +70,15 @@
             text-align: center;
             color: var(--text-secondary);
             font-size: 0.95rem;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .ingredient-group {
             border-top: 1px solid var(--border-light);
-            padding-top: 20px;
+            padding-top: 25px;
             margin-bottom: 25px;
         }
 
-        /* Diseño dinámico de filas */
         .ingredient-row {
             display: flex;
             gap: 10px;
@@ -95,25 +96,34 @@
             flex: 1;
         }
 
+        /* FIX PARA SAFARI Y CHROME MÓVIL */
         input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 1px solid var(--border-light);
-            border-radius: 10px;
+            border-radius: 12px;
             text-align: center;
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
+            background-color: #ffffff;
+            color: var(--text-primary);
+            -webkit-text-fill-color: var(--text-primary); /* Fuerza el color oscuro en iOS */
+            appearance: none; /* Evita estilos nativos del celular */
             transition: all 0.2s;
-            background: #fff;
+        }
+        
+        input::placeholder {
+            color: #a1a1aa;
+            -webkit-text-fill-color: #a1a1aa;
+            opacity: 1;
         }
         
         input:focus {
             outline: none;
             border-color: var(--accent-main);
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
         }
 
-        /* Botones de acción pequeña (eliminar) */
         .btn-icon {
             background: none;
             border: none;
@@ -126,100 +136,97 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: none;
+            -webkit-appearance: none;
         }
 
-        .btn-icon:hover {
-            background-color: #fee2e2;
-            color: var(--danger-hover);
-            transform: scale(1.05);
-        }
+        .btn-icon:hover { background-color: #ffe4e6; color: var(--danger-hover); transform: scale(1.05); }
 
-        /* Botón añadir ingrediente */
         .btn-add {
             background-color: transparent;
             color: var(--accent-main);
-            border: 2px dashed var(--accent-main);
+            border: 2px dashed rgba(217, 119, 6, 0.4);
             margin-top: 5px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             box-shadow: none;
+            border-radius: 12px;
         }
 
         .btn-add:hover {
-            background-color: rgba(14, 165, 233, 0.05);
-            box-shadow: none;
+            background-color: rgba(217, 119, 6, 0.05);
+            border-color: var(--accent-main);
             transform: none;
         }
 
-        /* Botón Principal */
         button {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background-color: var(--accent-main);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2);
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
+            -webkit-appearance: none;
         }
 
-        button:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
+        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(217, 119, 6, 0.3); }
 
         .form-group-config {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            padding: 0 5px;
         }
 
-        .form-group-config label { font-weight: 500; display: flex; align-items: center; gap: 8px; }
-        .form-group-config label ion-icon { color: var(--text-secondary); font-size: 1.2rem; }
+        .form-group-config label { font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--text-primary);}
+        .form-group-config label ion-icon { color: var(--accent-main); font-size: 1.3rem; }
         .form-group-config input { width: 90px; }
 
         .results {
             margin-top: 35px;
             padding: 30px;
             background-color: var(--results-bg);
-            border-radius: 16px;
+            border-radius: 18px;
             display: none;
-            border: 1px solid var(--border-light);
+            border: 1px solid rgba(217, 119, 6, 0.1);
         }
 
-        .results h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .results h2 ion-icon { color: var(--accent-main); font-size: 1.4rem; }
+        .results h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--text-primary); }
+        .results h2 ion-icon { color: var(--accent-main); font-size: 1.5rem; }
 
         .result-item {
             background: var(--bg-card);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             box-shadow: var(--shadow-md);
-            border: 1px solid rgba(0,0,0,0.03);
+            border: 1px solid var(--border-light);
         }
         
-        .result-item span:first-child { font-weight: 500; }
-        .result-item span:last-child { color: var(--accent-main); font-weight: 600; font-size: 1.1rem; }
+        .result-item span:first-child { font-weight: 500; color: var(--text-primary); }
+        .result-item span:last-child { color: var(--accent-main); font-weight: 700; font-size: 1.1rem; }
 
         .total-highlight { background-color: var(--accent-main); border-color: var(--accent-main); }
         .total-highlight span:first-child { color: #ffffff; font-weight: 600; }
-        .total-highlight span:last-child { color: #ffffff; font-size: 1.2rem; font-weight: 700; }
+        .total-highlight span:last-child { color: #ffffff; font-size: 1.25rem; font-weight: 700; }
 
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><ion-icon name="paw-outline"></ion-icon> Planificador Mía</h1>
+    <h1><ion-icon name="paw"></ion-icon> Planificador Mía</h1>
     <p class="subtitle">Personaliza los ingredientes y requerimientos diarios:</p>
     
     <div id="lista-ingredientes" class="ingredient-group">
@@ -230,21 +237,21 @@
     </button>
     
     <div class="form-group-config">
-        <label><ion-icon name="basket-outline"></ion-icon> Días de Prep:</label>
+        <label><ion-icon name="calendar-outline"></ion-icon> Días de Prep:</label>
         <input type="number" id="dias" value="7" min="1" max="30">
     </div>
 
     <div class="form-group-config">
-        <label><ion-icon name="pizza-outline"></ion-icon> Comidas al día:</label>
+        <label><ion-icon name="restaurant-outline"></ion-icon> Comidas al día:</label>
         <input type="number" id="comidas" value="2" min="1" max="5">
     </div>
 
-    <button onclick="calcularMenu()" style="margin-top: 20px;">
-        <ion-icon name="calculator-outline"></ion-icon> Calcular Menú
+    <button onclick="calcularMenu()" style="margin-top: 25px;">
+        <ion-icon name="calculator"></ion-icon> Calcular Menú
     </button>
 
     <div class="results" id="resultados">
-        <h2><ion-icon name="bag-check-outline"></ion-icon> Porción por Bolsa</h2>
+        <h2><ion-icon name="scale-outline"></ion-icon> Porción por Bolsa</h2>
         <div id="lista-bolsa"></div>
         
         <h2 style="margin-top: 30px;"><ion-icon name="cart-outline"></ion-icon> Lista de Compras Total</h2>
@@ -253,7 +260,6 @@
 </div>
 
 <script>
-    // Ingredientes base al cargar la página por primera vez
     const ingredientesIniciales = [
         { nombre: "Pollo Magro", gramos: 350 },
         { nombre: "Huevo", gramos: 60 },
@@ -262,15 +268,12 @@
         { nombre: "Arándanos", gramos: 15 }
     ];
 
-    // Función que se ejecuta al cargar la página
     window.onload = function() {
         ingredientesIniciales.forEach(ing => agregarFilaIngrediente(ing.nombre, ing.gramos));
     };
 
-    // Función para añadir una nueva fila al formulario
     function agregarFilaIngrediente(nombre, gramos) {
         const contenedor = document.getElementById('lista-ingredientes');
-        
         const fila = document.createElement('div');
         fila.className = 'ingredient-row';
         
@@ -281,15 +284,12 @@
                 <ion-icon name="trash-outline"></ion-icon>
             </button>
         `;
-        
         contenedor.appendChild(fila);
     }
 
-    // Función de cálculo principal
     function calcularMenu() {
         const comidas = parseInt(document.getElementById('comidas').value) || 1;
         const dias = parseInt(document.getElementById('dias').value) || 1;
-        
         const filas = document.querySelectorAll('.ingredient-row');
         
         let htmlBolsa = '';
@@ -302,12 +302,10 @@
             const gramosDiarios = parseFloat(fila.querySelector('.ing-weight').value) || 0;
 
             if (gramosDiarios > 0) {
-                // Cálculo 1: Por bolsa
                 const gramosPorBolsa = gramosDiarios / comidas;
                 totalBolsa += gramosPorBolsa;
                 htmlBolsa += `<div class="result-item"><span>${nombre}</span><span>${gramosPorBolsa.toFixed(1)} g</span></div>`;
                 
-                // Cálculo 2: Compras
                 const gramosTotal = gramosDiarios * dias;
                 totalCompras += gramosTotal;
                 let textoCompra = gramosTotal >= 1000 ? `${(gramosTotal/1000).toFixed(2)} kg` : `${gramosTotal} g`;
@@ -320,17 +318,17 @@
             return;
         }
 
-        // Totales
         htmlBolsa += `<div class="result-item total-highlight"><span>TOTAL BOLSA</span><span>${totalBolsa.toFixed(1)} g</span></div>`;
         let textoTotalCompras = totalCompras >= 1000 ? `${(totalCompras/1000).toFixed(2)} kg` : `${totalCompras} g`;
         htmlCompras += `<div class="result-item total-highlight"><span>TOTAL A PREPARAR</span><span>${textoTotalCompras}</span></div>`;
 
-        // Mostrar resultados
         document.getElementById('lista-bolsa').innerHTML = htmlBolsa;
         document.getElementById('lista-compras').innerHTML = htmlCompras;
         document.getElementById('resultados').style.display = 'block';
         
-        document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+            document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     }
 </script>
 
