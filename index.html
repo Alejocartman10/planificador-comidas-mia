@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planificador de Menú Natural Premium</title>
+    <title>Planificador de Menú Natural Dinámico</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,25 +13,22 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
     <style>
-        /* --- ESTILOS GENERALES Y PALETA DE COLORES --- */
         :root {
-            --bg-page: #f9fafb; /* Gris extremadamente claro */
-            --bg-card: #ffffff; /* Blanco puro */
-            --text-primary: #111827; /* Pizarra profundo */
-            --text-secondary: #6b7280; /* Gris medio */
-            --accent-main: #0ea5e9; /* Cian vibrante */
-            --accent-hover: #0284c7; /* Cian oscuro para hover */
-            --border-light: #e5e7eb; /* Gris borde sutil */
-            --results-bg: #f1f5f9; /* Fondo sección resultados */
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --bg-page: #f9fafb;
+            --bg-card: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --accent-main: #0ea5e9;
+            --accent-hover: #0284c7;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --border-light: #e5e7eb;
+            --results-bg: #f1f5f9;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -44,10 +41,9 @@
             padding: 20px;
         }
 
-        /* --- CONTENEDOR PRINCIPAL PREMIUM --- */
         .container {
             width: 100%;
-            max-width: 520px;
+            max-width: 550px;
             background: var(--bg-card);
             padding: 40px;
             border-radius: 20px;
@@ -55,10 +51,8 @@
             border: 1px solid var(--border-light);
         }
 
-        /* --- CABECERA --- */
         h1 {
             text-align: center;
-            color: var(--text-primary);
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 8px;
@@ -68,49 +62,41 @@
             gap: 12px;
         }
         
-        h1 ion-icon {
-            color: var(--accent-main);
-            font-size: 2.2rem;
-        }
+        h1 ion-icon { color: var(--accent-main); font-size: 2.2rem; }
 
         .subtitle {
             text-align: center;
             color: var(--text-secondary);
             font-size: 0.95rem;
-            margin-bottom: 30px;
-        }
-
-        /* --- FORMULARIO E INPUTS --- */
-        .ingredient-group {
-            border-top: 1px solid var(--border-light);
-            padding-top: 10px;
             margin-bottom: 25px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
+        .ingredient-group {
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+            margin-bottom: 25px;
         }
 
-        label {
-            font-weight: 500;
-            color: var(--text-primary);
+        /* Diseño dinámico de filas */
+        .ingredient-row {
             display: flex;
-            align-items: center;
             gap: 10px;
-            font-size: 1rem;
+            margin-bottom: 12px;
+            align-items: center;
         }
-        
-        label ion-icon {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
+
+        .ingredient-row input[type="text"] {
+            flex: 2;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .ingredient-row input[type="number"] {
+            flex: 1;
         }
 
         input {
-            width: 100px;
+            width: 100%;
             padding: 12px;
             border: 1px solid var(--border-light);
             border-radius: 10px;
@@ -127,10 +113,48 @@
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
         }
 
-        /* --- BOTÓN PREMIUM --- */
+        /* Botones de acción pequeña (eliminar) */
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: none;
+        }
+
+        .btn-icon:hover {
+            background-color: #fee2e2;
+            color: var(--danger-hover);
+            transform: scale(1.05);
+        }
+
+        /* Botón añadir ingrediente */
+        .btn-add {
+            background-color: transparent;
+            color: var(--accent-main);
+            border: 2px dashed var(--accent-main);
+            margin-top: 5px;
+            margin-bottom: 25px;
+            box-shadow: none;
+        }
+
+        .btn-add:hover {
+            background-color: rgba(14, 165, 233, 0.05);
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Botón Principal */
         button {
             width: 100%;
-            padding: 18px;
+            padding: 15px;
             background-color: var(--accent-main);
             color: white;
             border: none;
@@ -138,22 +162,27 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
 
-        button:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px rgba(14, 165, 233, 0.25);
-        }
-        
-        button:active {
-            transform: translateY(1px);
+        button:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
+
+        .form-group-config {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        /* --- SECCIÓN RESULTADOS PREMIUM --- */
+        .form-group-config label { font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .form-group-config label ion-icon { color: var(--text-secondary); font-size: 1.2rem; }
+        .form-group-config input { width: 90px; }
+
         .results {
             margin-top: 35px;
             padding: 30px;
@@ -163,22 +192,9 @@
             border: 1px solid var(--border-light);
         }
 
-        .results h2 {
-            font-size: 1.25rem;
-            color: var(--text-primary);
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .results h2 ion-icon {
-            color: var(--accent-main);
-            font-size: 1.4rem;
-        }
+        .results h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .results h2 ion-icon { color: var(--accent-main); font-size: 1.4rem; }
 
-        /* --- TARJETAS DE RESULTADOS --- */
         .result-item {
             background: var(--bg-card);
             padding: 15px;
@@ -191,33 +207,12 @@
             border: 1px solid rgba(0,0,0,0.03);
         }
         
-        .result-item span:first-child {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
+        .result-item span:first-child { font-weight: 500; }
+        .result-item span:last-child { color: var(--accent-main); font-weight: 600; font-size: 1.1rem; }
 
-        .result-item span:last-child {
-            color: var(--accent-main);
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        /* --- DESTACADO TOTALES --- */
-        .total-highlight {
-            background-color: var(--accent-main);
-            border-color: var(--accent-main);
-        }
-        
-        .total-highlight span:first-child {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .total-highlight span:last-child {
-            color: #ffffff;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
+        .total-highlight { background-color: var(--accent-main); border-color: var(--accent-main); }
+        .total-highlight span:first-child { color: #ffffff; font-weight: 600; }
+        .total-highlight span:last-child { color: #ffffff; font-size: 1.2rem; font-weight: 700; }
 
     </style>
 </head>
@@ -225,27 +220,28 @@
 
 <div class="container">
     <h1><ion-icon name="paw-outline"></ion-icon> Planificador Mía</h1>
-    <p class="subtitle">Ingresa los gramos diarios requeridos:</p>
+    <p class="subtitle">Personaliza los ingredientes y requerimientos diarios:</p>
     
-    <div id="ingredients" class="ingredient-group">
-        <div class="form-group"><label><ion-icon name="restaurant-outline"></ion-icon> Pollo (g):</label><input type="number" id="pollo" value="350"></div>
-        <div class="form-group"><label><ion-icon name="egg-outline"></ion-icon> Huevo (g):</label><input type="number" id="huevo" value="60"></div>
-        <div class="form-group"><label><ion-icon name="leaf-outline"></ion-icon> Batata (g):</label><input type="number" id="batata" value="80"></div>
-        <div class="form-group"><label><ion-icon name="nutrition-outline"></ion-icon> Apio (g):</label><input type="number" id="apio" value="90"></div>
-        <div class="form-group"><label><ion-icon name="flask-outline"></ion-icon> Arándanos (g):</label><input type="number" id="arandanos" value="15"></div>
-    </div>
+    <div id="lista-ingredientes" class="ingredient-group">
+        </div>
     
-    <div class="form-group">
+    <button class="btn-add" onclick="agregarFilaIngrediente('', '')">
+        <ion-icon name="add-circle-outline"></ion-icon> Añadir nuevo ingrediente
+    </button>
+    
+    <div class="form-group-config">
         <label><ion-icon name="basket-outline"></ion-icon> Días de Prep:</label>
         <input type="number" id="dias" value="7" min="1" max="30">
     </div>
 
-    <div class="form-group">
+    <div class="form-group-config">
         <label><ion-icon name="pizza-outline"></ion-icon> Comidas al día:</label>
         <input type="number" id="comidas" value="2" min="1" max="5">
     </div>
 
-    <button onclick="calcularMenu()">Calcular Menú</button>
+    <button onclick="calcularMenu()" style="margin-top: 20px;">
+        <ion-icon name="calculator-outline"></ion-icon> Calcular Menú
+    </button>
 
     <div class="results" id="resultados">
         <h2><ion-icon name="bag-check-outline"></ion-icon> Porción por Bolsa</h2>
@@ -257,58 +253,83 @@
 </div>
 
 <script>
-    function calcularMenu() {
-        // Obtener valores de los inputs
-        const pollo = parseFloat(document.getElementById('pollo').value) || 0;
-        const huevo = parseFloat(document.getElementById('huevo').value) || 0;
-        const batata = parseFloat(document.getElementById('batata').value) || 0;
-        const apio = parseFloat(document.getElementById('apio').value) || 0;
-        const arandanos = parseFloat(document.getElementById('arandanos').value) || 0;
+    // Ingredientes base al cargar la página por primera vez
+    const ingredientesIniciales = [
+        { nombre: "Pollo Magro", gramos: 350 },
+        { nombre: "Huevo", gramos: 60 },
+        { nombre: "Batata", gramos: 80 },
+        { nombre: "Apio", gramos: 90 },
+        { nombre: "Arándanos", gramos: 15 }
+    ];
+
+    // Función que se ejecuta al cargar la página
+    window.onload = function() {
+        ingredientesIniciales.forEach(ing => agregarFilaIngrediente(ing.nombre, ing.gramos));
+    };
+
+    // Función para añadir una nueva fila al formulario
+    function agregarFilaIngrediente(nombre, gramos) {
+        const contenedor = document.getElementById('lista-ingredientes');
         
+        const fila = document.createElement('div');
+        fila.className = 'ingredient-row';
+        
+        fila.innerHTML = `
+            <input type="text" class="ing-name" placeholder="Nombre (ej. Salmón)" value="${nombre}">
+            <input type="number" class="ing-weight" placeholder="Gramos" value="${gramos}" min="0">
+            <button class="btn-icon" onclick="this.parentElement.remove()" title="Eliminar ingrediente">
+                <ion-icon name="trash-outline"></ion-icon>
+            </button>
+        `;
+        
+        contenedor.appendChild(fila);
+    }
+
+    // Función de cálculo principal
+    function calcularMenu() {
         const comidas = parseInt(document.getElementById('comidas').value) || 1;
         const dias = parseInt(document.getElementById('dias').value) || 1;
-
-        const ingredientes = {
-            "Pollo Magro": pollo,
-            "Huevo": huevo,
-            "Batata": batata,
-            "Apio": apio,
-            "Arándanos": arandanos
-        };
-
+        
+        const filas = document.querySelectorAll('.ingredient-row');
+        
         let htmlBolsa = '';
         let totalBolsa = 0;
         let htmlCompras = '';
         let totalCompras = 0;
 
-        // --- CÁLCULOS PRINCIPALES ---
-        for (const [nombre, gramosDiarios] of Object.entries(ingredientes)) {
+        filas.forEach(fila => {
+            const nombre = fila.querySelector('.ing-name').value || 'Ingrediente sin nombre';
+            const gramosDiarios = parseFloat(fila.querySelector('.ing-weight').value) || 0;
+
             if (gramosDiarios > 0) {
-                // Cálculo 1: Por bolsa individual
+                // Cálculo 1: Por bolsa
                 const gramosPorBolsa = gramosDiarios / comidas;
                 totalBolsa += gramosPorBolsa;
                 htmlBolsa += `<div class="result-item"><span>${nombre}</span><span>${gramosPorBolsa.toFixed(1)} g</span></div>`;
                 
-                // Cálculo 2: Total compras para el meal prep
+                // Cálculo 2: Compras
                 const gramosTotal = gramosDiarios * dias;
                 totalCompras += gramosTotal;
                 let textoCompra = gramosTotal >= 1000 ? `${(gramosTotal/1000).toFixed(2)} kg` : `${gramosTotal} g`;
                 htmlCompras += `<div class="result-item"><span>${nombre}</span><span>${textoCompra}</span></div>`;
             }
+        });
+
+        if(totalBolsa === 0) {
+            alert("Por favor, agrega al menos un ingrediente con peso mayor a 0.");
+            return;
         }
 
-        // --- AGREGAR TARJETAS DE TOTALES DESTACADAS ---
+        // Totales
         htmlBolsa += `<div class="result-item total-highlight"><span>TOTAL BOLSA</span><span>${totalBolsa.toFixed(1)} g</span></div>`;
-        
         let textoTotalCompras = totalCompras >= 1000 ? `${(totalCompras/1000).toFixed(2)} kg` : `${totalCompras} g`;
         htmlCompras += `<div class="result-item total-highlight"><span>TOTAL A PREPARAR</span><span>${textoTotalCompras}</span></div>`;
 
-        // --- MOSTRAR RESULTADOS ---
+        // Mostrar resultados
         document.getElementById('lista-bolsa').innerHTML = htmlBolsa;
         document.getElementById('lista-compras').innerHTML = htmlCompras;
         document.getElementById('resultados').style.display = 'block';
         
-        // Scroll automático suave hacia los resultados para móvil
         document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
     }
 </script>
