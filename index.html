@@ -96,7 +96,7 @@
             margin-bottom: 10px;
         }
 
-        /* ── INPUTS — fix universal Safari/Chrome ── */
+        /* ── INPUTS ── */
         input[type="text"],
         input[type="number"] {
             font-family: 'DM Sans', sans-serif;
@@ -112,7 +112,6 @@
             -webkit-appearance: none;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            /* Safari fix */
             -webkit-text-fill-color: var(--ink);
             opacity: 1;
         }
@@ -130,11 +129,7 @@
             background: #fff;
         }
 
-        input[type="number"] {
-            text-align: center;
-        }
-
-        /* number spinner hidden */
+        input[type="number"] { text-align: center; }
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
         input[type="number"] { -moz-appearance: textfield; }
@@ -155,11 +150,7 @@
             box-shadow: none;
         }
 
-        .btn-trash:hover {
-            color: var(--danger);
-            background: #fdecea;
-            transform: none;
-        }
+        .btn-trash:hover { color: var(--danger); background: #fdecea; }
 
         /* ── ADD BUTTON ── */
         .btn-add {
@@ -183,7 +174,6 @@
         .btn-add:hover {
             background: rgba(200,146,42,0.05);
             border-color: var(--gold);
-            transform: none;
         }
 
         /* ── CONFIG ROW ── */
@@ -204,10 +194,7 @@
         }
 
         .config-label .icon { font-size: 1.1rem; }
-
-        .config-row input[type="number"] {
-            width: 80px;
-        }
+        .config-row input[type="number"] { width: 80px; }
 
         /* ── CALCULATE BUTTON ── */
         .btn-calc {
@@ -293,6 +280,80 @@
             background: var(--border);
             margin: 8px 0 20px;
         }
+
+        /* ── RESUMEN NUTRICIONAL ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .summary-item {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .summary-item .s-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .summary-item .s-val {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            color: var(--gold);
+        }
+
+        /* ── PORCENTAJES ── */
+        .pct-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pct-row:last-child { border-bottom: none; }
+
+        .pct-name {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--ink);
+            width: 110px;
+            flex-shrink: 0;
+        }
+
+        .pct-bar-wrap {
+            flex: 1;
+            height: 8px;
+            background: var(--warm);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .pct-bar {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
+        .pct-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gold);
+            width: 42px;
+            text-align: right;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
@@ -307,9 +368,7 @@
     <div class="card">
         <div class="section-label">Ingredientes por día</div>
         <div id="lista-ingredientes"></div>
-        <button class="btn-add" id="btn-add-ing">
-            ＋ Añadir ingrediente
-        </button>
+        <button class="btn-add" id="btn-add-ing">＋ Añadir ingrediente</button>
     </div>
 
     <!-- CONFIG -->
@@ -328,36 +387,44 @@
     </div>
 
     <!-- BUTTON -->
-    <button class="btn-calc" id="btn-calc">
-        🧮 Calcular
-    </button>
+    <button class="btn-calc" id="btn-calc">🧮 Calcular</button>
 
     <!-- RESULTS -->
     <div class="results card" id="resultados" style="margin-top:16px;">
+
+        <!-- RESUMEN NUTRICIONAL -->
+        <div class="results-header"><div class="dot"></div> Resumen</div>
+        <div class="summary-grid" id="resumen-grid"></div>
+
+        <div class="divider"></div>
+
+        <!-- PORCENTAJES -->
+        <div class="results-header"><div class="dot"></div> Distribución por ingrediente</div>
+        <div id="lista-porcentajes"></div>
+
+        <div class="divider"></div>
+
+        <!-- PORCIÓN POR BOLSA -->
         <div class="results-header"><div class="dot"></div> Porción por bolsa</div>
         <div id="lista-bolsa"></div>
 
         <div class="divider"></div>
 
+        <!-- LISTA DE COMPRAS -->
         <div class="results-header"><div class="dot"></div> Lista de compras total</div>
         <div id="lista-compras"></div>
     </div>
 
 <script>
     const ingredientesIniciales = [
-        { nombre: "Pollo Magro",  gramos: 350 },
-        { nombre: "Huevo",        gramos: 60  },
-        { nombre: "Batata",       gramos: 80  },
-        { nombre: "Apio",         gramos: 90  },
-        { nombre: "Arándanos",    gramos: 15  },
+        { nombre: "Pollo",       gramos: 250 },
+        { nombre: "Tilapia",     gramos: 100 },
+        { nombre: "Huevo",       gramos: 60  },
+        { nombre: "Batata",      gramos: 80  },
+        { nombre: "Apio",        gramos: 90  },
+        { nombre: "Arándanos",   gramos: 15  },
     ];
 
-    /* 
-     * FIX SAFARI/CHROME MÓVIL:
-     * Se crean los elementos con createElement y se asigna .value
-     * directamente en JS (no mediante innerHTML con value="..."),
-     * que es lo que hace que Safari no muestre el texto.
-     */
     function crearFila(nombre, gramos) {
         const row = document.createElement('div');
         row.className = 'ingredient-row';
@@ -366,14 +433,14 @@
         inputNombre.type = 'text';
         inputNombre.className = 'ing-name';
         inputNombre.placeholder = 'Ingrediente';
-        inputNombre.value = nombre;          // asignación directa ✓
+        inputNombre.value = nombre;
 
         const inputGramos = document.createElement('input');
         inputGramos.type = 'number';
         inputGramos.className = 'ing-weight';
         inputGramos.placeholder = 'g';
         inputGramos.min = '0';
-        inputGramos.value = gramos !== '' ? String(gramos) : '';  // asignación directa ✓
+        inputGramos.value = gramos !== '' ? String(gramos) : '';
 
         const btnTrash = document.createElement('button');
         btnTrash.className = 'btn-trash';
@@ -388,11 +455,9 @@
         document.getElementById('lista-ingredientes').appendChild(row);
     }
 
-    // Carga inicial
     ingredientesIniciales.forEach(i => crearFila(i.nombre, i.gramos));
 
     document.getElementById('btn-add-ing').addEventListener('click', () => crearFila('', ''));
-
     document.getElementById('btn-calc').addEventListener('click', calcular);
 
     function calcular() {
@@ -400,43 +465,82 @@
         const dias    = parseInt(document.getElementById('dias').value) || 1;
         const filas   = document.querySelectorAll('.ingredient-row');
 
-        let htmlBolsa = '', totalBolsa = 0;
-        let htmlCompras = '', totalCompras = 0;
+        const ingredientes = [];
+        let totalDiario = 0;
 
         filas.forEach(fila => {
             const nombre = fila.querySelector('.ing-name').value.trim() || 'Sin nombre';
             const gDiarios = parseFloat(fila.querySelector('.ing-weight').value) || 0;
             if (gDiarios <= 0) return;
-
-            const gBolsa = gDiarios / comidas;
-            totalBolsa += gBolsa;
-            htmlBolsa += resultRow(nombre, gBolsa.toFixed(1) + ' g');
-
-            const gTotal = gDiarios * dias;
-            totalCompras += gTotal;
-            const textoTotal = gTotal >= 1000
-                ? (gTotal / 1000).toFixed(2) + ' kg'
-                : gTotal + ' g';
-            htmlCompras += resultRow(nombre, textoTotal);
+            ingredientes.push({ nombre, gDiarios });
+            totalDiario += gDiarios;
         });
 
-        if (totalBolsa === 0) {
+        if (totalDiario === 0) {
             alert('Agrega al menos un ingrediente con gramos mayores a 0.');
             return;
         }
 
-        htmlBolsa   += resultRow('TOTAL BOLSA', totalBolsa.toFixed(1) + ' g', true);
-        const ttxto = totalCompras >= 1000
-            ? (totalCompras / 1000).toFixed(2) + ' kg'
-            : totalCompras + ' g';
-        htmlCompras += resultRow('TOTAL A PREPARAR', ttxto, true);
+        const totalSemanal  = totalDiario * dias;
+        const totalBolsas   = dias * comidas;
+        const gPorBolsa     = totalDiario / comidas;
 
-        document.getElementById('lista-bolsa').innerHTML   = htmlBolsa;
+        // ── RESUMEN ──
+        const resumenGrid = document.getElementById('resumen-grid');
+        resumenGrid.innerHTML = `
+            ${summaryItem('Total diario', formatGramos(totalDiario))}
+            ${summaryItem('Total (' + dias + ' días)', formatGramos(totalSemanal))}
+            ${summaryItem('Bolsas a preparar', totalBolsas)}
+            ${summaryItem('Peso por bolsa', formatGramos(gPorBolsa))}
+        `;
+
+        // ── PORCENTAJES ──
+        let htmlPct = '';
+        ingredientes.forEach(ing => {
+            const pct = (ing.gDiarios / totalDiario * 100).toFixed(1);
+            htmlPct += `
+                <div class="pct-row">
+                    <span class="pct-name">${ing.nombre}</span>
+                    <div class="pct-bar-wrap">
+                        <div class="pct-bar" style="width:${pct}%"></div>
+                    </div>
+                    <span class="pct-label">${pct}%</span>
+                </div>`;
+        });
+        document.getElementById('lista-porcentajes').innerHTML = htmlPct;
+
+        // ── BOLSA ──
+        let htmlBolsa = '';
+        ingredientes.forEach(ing => {
+            const gBolsa = ing.gDiarios / comidas;
+            htmlBolsa += resultRow(ing.nombre, gBolsa.toFixed(1) + ' g');
+        });
+        htmlBolsa += resultRow('TOTAL BOLSA', gPorBolsa.toFixed(1) + ' g', true);
+        document.getElementById('lista-bolsa').innerHTML = htmlBolsa;
+
+        // ── COMPRAS ──
+        let htmlCompras = '';
+        ingredientes.forEach(ing => {
+            const gTotal = ing.gDiarios * dias;
+            htmlCompras += resultRow(ing.nombre, formatGramos(gTotal));
+        });
+        htmlCompras += resultRow('TOTAL A PREPARAR', formatGramos(totalSemanal), true);
         document.getElementById('lista-compras').innerHTML = htmlCompras;
 
         const el = document.getElementById('resultados');
         el.style.display = 'block';
         setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    function formatGramos(g) {
+        return g >= 1000 ? (g / 1000).toFixed(2) + ' kg' : g.toFixed(1) + ' g';
+    }
+
+    function summaryItem(label, val) {
+        return `<div class="summary-item">
+                    <div class="s-label">${label}</div>
+                    <div class="s-val">${val}</div>
+                </div>`;
     }
 
     function resultRow(nombre, valor, total = false) {
