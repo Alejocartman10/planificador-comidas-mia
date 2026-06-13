@@ -455,7 +455,36 @@
         document.getElementById('lista-ingredientes').appendChild(row);
     }
 
-    ingredientesIniciales.forEach(i => crearFila(i.nombre, i.gramos));
+    // ── CARGAR DESDE localStorage O usar defaults ──
+    function cargarIngredientes() {
+        try {
+            const guardados = localStorage.getItem('cuenco_ingredientes');
+            const lista = guardados ? JSON.parse(guardados) : ingredientesIniciales;
+            lista.forEach(i => crearFila(i.nombre, i.gramos));
+        } catch(e) {
+            ingredientesIniciales.forEach(i => crearFila(i.nombre, i.gramos));
+        }
+
+        try {
+            const cfg = localStorage.getItem('cuenco_config');
+            if (cfg) {
+                const { dias, comidas } = JSON.parse(cfg);
+                if (dias)    document.getElementById('dias').value    = dias;
+                if (comidas) document.getElementById('comidas').value = comidas;
+            }
+        } catch(e) {}
+    }
+
+    function guardarEstado(ingredientes, dias, comidas) {
+        try {
+            localStorage.setItem('cuenco_ingredientes', JSON.stringify(
+                ingredientes.map(i => ({ nombre: i.nombre, gramos: i.gDiarios }))
+            ));
+            localStorage.setItem('cuenco_config', JSON.stringify({ dias, comidas }));
+        } catch(e) {}
+    }
+
+    cargarIngredientes();
 
     document.getElementById('btn-add-ing').addEventListener('click', () => crearFila('', ''));
     document.getElementById('btn-calc').addEventListener('click', calcular);
@@ -480,6 +509,9 @@
             alert('Agrega al menos un ingrediente con gramos mayores a 0.');
             return;
         }
+
+        // Guardar automáticamente al calcular
+        guardarEstado(ingredientes, dias, comidas);
 
         const totalSemanal  = totalDiario * dias;
         const totalBolsas   = dias * comidas;
