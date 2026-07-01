@@ -1,586 +1,1494 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuenco Natural</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cuenco Natural</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f7f3ee;
+  --card:     #ffffff;
+  --gold:     #c8922a;
+  --gold-lt:  #f0e0c0;
+  --gold-dk:  #a57320;
+  --ink:      #1a1410;
+  --muted:    #8a7e74;
+  --border:   #e8dfd0;
+  --danger:   #c0392b;
+  --green:    #4a7c59;
+  --shadow:   0 2px 24px rgba(26,20,16,0.07);
+  --radius:   18px;
+}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style>
-        :root {
-            --cream:   #faf6ef;
-            --warm:    #f0e8d8;
-            --gold:    #c8922a;
-            --gold-dk: #a57320;
-            --ink:     #1c1612;
-            --muted:   #7a6e64;
-            --danger:  #c0392b;
-            --card:    #ffffff;
-            --border:  #e8dfd0;
-            --shadow:  0 2px 20px rgba(28,22,18,0.08);
-        }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; padding-bottom: 80px; }
+.screen.active { display: block; }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background-color: var(--cream);
-            color: var(--ink);
-            min-height: 100vh;
-            padding: 24px 16px 60px;
-            background-image:
-                radial-gradient(ellipse at 10% 0%, rgba(200,146,42,0.08) 0%, transparent 55%),
-                radial-gradient(ellipse at 90% 100%, rgba(200,146,42,0.06) 0%, transparent 55%);
-        }
+/* ── TOP BAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 52px 20px 16px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
 
-        /* ── HEADER ── */
-        .header {
-            text-align: center;
-            margin-bottom: 32px;
-            padding-top: 12px;
-        }
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
 
-        .paw-ring {
-            width: 72px; height: 72px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 16px;
-            box-shadow: 0 4px 18px rgba(200,146,42,0.35);
-            font-size: 2rem;
-        }
+.topbar-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--gold);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  -webkit-appearance: none;
+}
 
-        h1 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 2.1rem;
-            letter-spacing: -0.5px;
-            color: var(--ink);
-            line-height: 1.1;
-        }
+.topbar-action {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gold);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  -webkit-appearance: none;
+}
 
-        .subtitle {
-            margin-top: 6px;
-            color: var(--muted);
-            font-size: 0.9rem;
-            font-weight: 400;
-        }
+/* ── HOME SCREEN ── */
+#screen-home {
+  padding: 0 0 100px;
+}
 
-        /* ── CARD ── */
-        .card {
-            background: var(--card);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            padding: 28px 24px;
-            margin-bottom: 16px;
-        }
+.home-header {
+  padding: 56px 24px 32px;
+  background: linear-gradient(160deg, #1a1410 0%, #2d2018 100%);
+  position: relative;
+  overflow: hidden;
+}
 
-        .section-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 16px;
-        }
+.home-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(200,146,42,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+}
 
-        /* ── INGREDIENT ROWS ── */
-        .ingredient-row {
-            display: grid;
-            grid-template-columns: 1fr 90px 36px;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+.home-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
 
-        /* ── INPUTS ── */
-        input[type="text"],
-        input[type="number"] {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 400;
-            color: var(--ink);
-            background: var(--cream);
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            padding: 11px 13px;
-            width: 100%;
-            appearance: none;
-            -webkit-appearance: none;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-text-fill-color: var(--ink);
-            opacity: 1;
-        }
+.home-logo span {
+  color: var(--gold);
+  font-style: italic;
+}
 
-        input[type="text"]::placeholder,
-        input[type="number"]::placeholder {
-            color: var(--muted);
-            -webkit-text-fill-color: var(--muted);
-        }
+.home-sub {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
 
-        input[type="text"]:focus,
-        input[type="number"]:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(200,146,42,0.12);
-            background: #fff;
-        }
+.home-body {
+  padding: 24px 20px 0;
+}
 
-        input[type="number"] { text-align: center; }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-        input[type="number"] { -moz-appearance: textfield; }
+.section-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
 
-        /* ── TRASH BUTTON ── */
-        .btn-trash {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #c0a090;
-            font-size: 1.15rem;
-            padding: 6px;
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            transition: color 0.2s, background 0.2s;
-            -webkit-appearance: none;
-            width: auto;
-            box-shadow: none;
-        }
+/* ── DOG CARD ── */
+.dog-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
 
-        .btn-trash:hover { color: var(--danger); background: #fdecea; }
+.dog-card:active { transform: scale(0.98); }
 
-        /* ── ADD BUTTON ── */
-        .btn-add {
-            width: 100%;
-            padding: 12px;
-            margin-top: 6px;
-            background: transparent;
-            color: var(--gold);
-            border: 1.5px dashed rgba(200,146,42,0.4);
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            transition: background 0.2s, border-color 0.2s;
-            box-shadow: none;
-            -webkit-appearance: none;
-        }
+.dog-avatar {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: var(--gold-lt);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid var(--border);
+}
 
-        .btn-add:hover {
-            background: rgba(200,146,42,0.05);
-            border-color: var(--gold);
-        }
+.dog-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
 
-        /* ── CONFIG ROW ── */
-        .config-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
+.dog-info { flex: 1; min-width: 0; }
 
-        .config-row:last-child { border-bottom: none; }
+.dog-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-        .config-label {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
+.dog-meta {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 400;
+}
 
-        .config-label .icon { font-size: 1.1rem; }
-        .config-row input[type="number"] { width: 80px; }
+.dog-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--gold-lt);
+  color: var(--gold-dk);
+  flex-shrink: 0;
+}
 
-        /* ── CALCULATE BUTTON ── */
-        .btn-calc {
-            width: 100%;
-            padding: 16px;
-            background: var(--gold);
-            color: #fff;
-            border: none;
-            border-radius: 14px;
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.15rem;
-            letter-spacing: 0.3px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 16px rgba(200,146,42,0.35);
-            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-            -webkit-appearance: none;
-        }
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
 
-        .btn-calc:hover {
-            background: var(--gold-dk);
-            transform: translateY(-2px);
-            box-shadow: 0 7px 22px rgba(200,146,42,0.4);
-        }
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
 
-        .btn-calc:active { transform: translateY(0); }
+.empty-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
 
-        /* ── RESULTS ── */
-        .results { display: none; }
+.empty-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 260px;
+  margin: 0 auto;
+}
 
-        .results-header {
-            display: flex; align-items: center; gap: 10px;
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.1rem;
-            color: var(--ink);
-            margin-bottom: 14px;
-        }
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: 28px; right: 20px;
+  width: 58px; height: 58px;
+  background: var(--gold);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(200,146,42,0.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  z-index: 50;
+  -webkit-appearance: none;
+}
 
-        .results-header .dot {
-            width: 10px; height: 10px;
-            background: var(--gold);
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
+.fab:active { transform: scale(0.92); }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-bottom: 6px;
-            background: var(--cream);
-            border: 1px solid var(--border);
-        }
+/* ── CARD BASE ── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+  margin: 0 20px 14px;
+}
 
-        .result-row .r-name {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--ink);
-        }
+.card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-        .result-row .r-val {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--gold);
-        }
+/* ── TAB BAR ── */
+.tabbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(247,243,238,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 8px 0 20px;
+  z-index: 40;
+}
 
-        .result-row.total {
-            background: var(--gold);
-            border-color: var(--gold);
-            margin-top: 10px;
-        }
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
-        .result-row.total .r-name,
-        .result-row.total .r-val {
-            color: #fff;
-            font-size: 1rem;
-        }
+.tab-icon { font-size: 1.35rem; }
 
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 8px 0 20px;
-        }
+.tab-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+  transition: color 0.15s;
+}
 
-        /* ── RESUMEN NUTRICIONAL ── */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 4px;
-        }
+.tab-btn.active .tab-label { color: var(--gold); }
+.tab-btn.active .tab-icon { filter: none; }
 
-        .summary-item {
-            background: var(--cream);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 14px 12px;
-            text-align: center;
-        }
+/* ── FORM ── */
+.form-group {
+  margin-bottom: 16px;
+}
 
-        .summary-item .s-label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
+.form-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
 
-        .summary-item .s-val {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.25rem;
-            color: var(--gold);
-        }
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  padding: 11px 13px;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-text-fill-color: var(--ink);
+}
 
-        /* ── PORCENTAJES ── */
-        .pct-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border);
-        }
+input::placeholder, textarea::placeholder {
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
 
-        .pct-row:last-child { border-bottom: none; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200,146,42,0.1);
+  background: #fff;
+}
 
-        .pct-name {
-            font-size: 0.88rem;
-            font-weight: 500;
-            color: var(--ink);
-            width: 110px;
-            flex-shrink: 0;
-        }
+textarea { resize: none; min-height: 72px; line-height: 1.5; }
 
-        .pct-bar-wrap {
-            flex: 1;
-            height: 8px;
-            background: var(--warm);
-            border-radius: 99px;
-            overflow: hidden;
-        }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7e74' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 
-        .pct-bar {
-            height: 100%;
-            background: var(--gold);
-            border-radius: 99px;
-            transition: width 0.4s ease;
-        }
+input[type="number"] { text-align: center; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type="number"] { -moz-appearance: textfield; }
 
-        .pct-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--gold);
-            width: 42px;
-            text-align: right;
-            flex-shrink: 0;
-        }
-    </style>
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── TOGGLE ── */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.toggle-label {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.toggle {
+  width: 44px; height: 26px;
+  background: var(--border);
+  border-radius: 99px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  border: none;
+  -webkit-appearance: none;
+}
+
+.toggle.on { background: var(--green); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.toggle.on::after { transform: translateX(18px); }
+
+/* ── PHOTO UPLOAD ── */
+.photo-upload {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: var(--gold-lt);
+  border: 2px dashed rgba(200,146,42,0.4);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  margin: 0 auto 20px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.photo-upload:hover { border-color: var(--gold); }
+.photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+.photo-upload .photo-placeholder { font-size: 1.8rem; }
+.photo-upload .photo-hint { font-size: 0.6rem; color: var(--muted); margin-top: 2px; }
+
+/* ── BCS SCALE ── */
+.bcs-scale {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.bcs-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  -webkit-appearance: none;
+}
+
+.bcs-btn.selected {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+/* ── PLAN SCREEN ── */
+.ingredient-row-plan {
+  display: grid;
+  grid-template-columns: 1fr 80px 36px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.pct-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold-dk);
+  background: var(--gold-lt);
+  padding: 2px 7px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+/* ── PREP SCREEN ── */
+.prep-period {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.period-btn {
+  flex: 1;
+  padding: 14px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  -webkit-appearance: none;
+}
+
+.period-btn .period-sub {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.period-btn.selected {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.summary-tile {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.summary-tile .t-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.summary-tile .t-val {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.result-row .r-name { font-size: 0.88rem; font-weight: 500; }
+.result-row .r-val  { font-size: 0.9rem; font-weight: 600; color: var(--gold); }
+
+.result-row.total { background: var(--ink); border-color: var(--ink); }
+.result-row.total .r-name,
+.result-row.total .r-val { color: #fff; }
+
+.cook-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(200,146,42,0.08);
+  border: 1px solid rgba(200,146,42,0.2);
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-top: 6px;
+}
+
+.cook-note .note-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.cook-note .note-text { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+.cook-note .note-text strong { color: var(--gold-dk); }
+
+.divider { height: 1px; background: var(--border); margin: 6px 0 18px; }
+
+/* ── SAVE BUTTON ── */
+.btn-save {
+  width: 100%;
+  padding: 16px;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(200,146,42,0.35);
+  transition: background 0.2s, transform 0.1s;
+  -webkit-appearance: none;
+  margin-top: 8px;
+}
+
+.btn-save:active { transform: scale(0.98); background: var(--gold-dk); }
+
+.btn-add {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  color: var(--gold);
+  border: 1.5px dashed rgba(200,146,42,0.4);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background 0.2s;
+  -webkit-appearance: none;
+  margin-top: 4px;
+}
+
+.btn-add:hover { background: rgba(200,146,42,0.05); }
+
+.btn-danger {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: var(--danger);
+  border: 1.5px solid rgba(192,57,43,0.25);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover { background: rgba(192,57,43,0.05); }
+
+/* ── PCTS BAR ── */
+.pct-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.pct-row:last-child { border-bottom: none; }
+.pct-name { font-size: 0.85rem; font-weight: 500; width: 110px; flex-shrink: 0; }
+.pct-bar-wrap { flex:1; height: 7px; background: var(--gold-lt); border-radius: 99px; overflow: hidden; }
+.pct-bar { height: 100%; background: var(--gold); border-radius: 99px; }
+.pct-label { font-size: 0.82rem; font-weight: 700; color: var(--gold); width: 40px; text-align: right; }
+
+/* ── SCREEN PREP COMIDAS ── */
+.config-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.config-row:last-child { border-bottom: none; }
+.config-label { font-size: 0.92rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.config-row input[type="number"] { width: 72px; }
+
+/* ── PROFILE HEADER ── */
+.profile-hero {
+  background: linear-gradient(160deg, #1a1410 0%, #2d2018 100%);
+  padding: 20px 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.profile-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--gold-lt);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid rgba(200,146,42,0.4);
+}
+
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.profile-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.profile-breed {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  margin-top: 3px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.info-tile {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 12px 13px;
+}
+
+.info-tile .i-label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.info-tile .i-val {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tag {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--gold-lt);
+  color: var(--gold-dk);
+}
+.tag.red { background: #fdecea; color: var(--danger); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 90px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 100;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="paw-ring">🐾</div>
-        <h1>Cuenco Natural</h1>
-        <p class="subtitle">Calculadora de alimentación natural para perros</p>
+<!-- ════════════════════════════════
+     SCREEN: HOME
+════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="home-logo">Cuenco <span>Natural</span></div>
+    <div class="home-sub">Nutrición real para perros reales</div>
+  </div>
+  <div class="home-body">
+    <div class="section-eyebrow" style="margin-top:24px;">Mis perros</div>
+    <div id="dogs-list"></div>
+  </div>
+  <button class="fab" id="btn-new-dog">+</button>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN: NUEVO PERRO / EDITAR
+════════════════════════════════ -->
+<div id="screen-edit" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" id="back-from-edit">← Mis perros</button>
+    <div class="topbar-title" id="edit-title">Nuevo perro</div>
+    <div style="width:80px"></div>
+  </div>
+
+  <div style="padding: 0 20px 20px;">
+    <div class="photo-upload" id="photo-upload-wrap">
+      <input type="file" accept="image/*" id="photo-input">
+      <div class="photo-placeholder" id="photo-placeholder">🐶</div>
+      <div class="photo-hint" id="photo-hint">Foto</div>
+      <img id="photo-preview" style="display:none;">
     </div>
 
-    <!-- INGREDIENTS -->
-    <div class="card">
-        <div class="section-label">Ingredientes por día</div>
-        <div id="lista-ingredientes"></div>
-        <button class="btn-add" id="btn-add-ing">＋ Añadir ingrediente</button>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" id="f-nombre" placeholder="Max">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Raza</label>
+        <input type="text" id="f-raza" placeholder="Labrador">
+      </div>
     </div>
 
-    <!-- CONFIG -->
-    <div class="card">
-        <div class="section-label">Configuración</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sexo</label>
+        <select id="f-sexo">
+          <option value="">—</option>
+          <option value="Macho">Macho</option>
+          <option value="Hembra">Hembra</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Especie</label>
+        <select id="f-especie">
+          <option value="Perro">Perro</option>
+          <option value="Gato">Gato</option>
+        </select>
+      </div>
+    </div>
 
-        <div class="config-row">
-            <div class="config-label"><span class="icon">📅</span> Días de preparación</div>
-            <input type="number" id="dias" value="7" min="1" max="30">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Edad</label>
+        <input type="text" id="f-edad" placeholder="2 años">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Peso actual (kg)</label>
+        <input type="number" id="f-peso" placeholder="0.0" step="0.1">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Peso ideal (kg)</label>
+        <input type="number" id="f-peso-ideal" placeholder="0.0" step="0.1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nivel de actividad</label>
+        <select id="f-actividad">
+          <option value="">—</option>
+          <option value="Sedentario">Sedentario</option>
+          <option value="Moderado">Moderado</option>
+          <option value="Activo">Activo</option>
+          <option value="Muy activo">Muy activo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Condición corporal (BCS 1–9)</label>
+      <div class="bcs-scale" id="bcs-scale">
+        <button class="bcs-btn" data-v="1">1</button>
+        <button class="bcs-btn" data-v="2">2</button>
+        <button class="bcs-btn" data-v="3">3</button>
+        <button class="bcs-btn" data-v="4">4</button>
+        <button class="bcs-btn" data-v="5">5</button>
+        <button class="bcs-btn" data-v="6">6</button>
+        <button class="bcs-btn" data-v="7">7</button>
+        <button class="bcs-btn" data-v="8">8</button>
+        <button class="bcs-btn" data-v="9">9</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <span class="toggle-label">Esterilizado/a</span>
+        <button class="toggle" id="toggle-esterilizado"></button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Alergias</label>
+      <input type="text" id="f-alergias" placeholder="Pollo, trigo… (separar con comas)">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Enfermedades</label>
+      <input type="text" id="f-enfermedades" placeholder="Ninguna">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Última consulta</label>
+      <input type="date" id="f-consulta">
+    </div>
+
+    <button class="btn-save" id="btn-save-dog">Guardar perfil</button>
+    <button class="btn-danger" id="btn-delete-dog" style="display:none;">Eliminar este perro</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN: DETALLE DEL PERRO
+════════════════════════════════ -->
+<div id="screen-dog" class="screen">
+  <div class="topbar" style="background:transparent; position:relative; padding-top:16px;">
+    <button class="topbar-back" id="back-from-dog" style="color:rgba(255,255,255,0.8);">← Mis perros</button>
+    <div style="width:80px"></div>
+    <button class="topbar-action" id="btn-edit-dog" style="color:rgba(255,255,255,0.8);">Editar</button>
+  </div>
+
+  <div class="profile-hero" style="margin-top:-60px; padding-top:70px;">
+    <div class="profile-avatar" id="detail-avatar">🐶</div>
+    <div>
+      <div class="profile-name" id="detail-name">—</div>
+      <div class="profile-breed" id="detail-breed">—</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div style="display:flex; border-bottom:1px solid var(--border); background:var(--card); position:sticky; top:0; z-index:5;">
+    <button class="tab-btn active" data-tab="perfil" onclick="switchDogTab('perfil',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:600; color:var(--gold); border:none; background:none; cursor:pointer; border-bottom:2px solid var(--gold);">Perfil</button>
+    <button class="tab-btn" data-tab="plan" onclick="switchDogTab('plan',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:500; color:var(--muted); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent;">Plan</button>
+    <button class="tab-btn" data-tab="prep" onclick="switchDogTab('prep',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:500; color:var(--muted); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent;">Preparar</button>
+  </div>
+
+  <!-- TAB: PERFIL -->
+  <div id="tab-perfil" style="padding: 20px 20px 100px;">
+    <div class="info-grid" id="detail-grid"></div>
+    <div id="detail-alergias-wrap" style="margin-top:14px; display:none;">
+      <div class="section-eyebrow">Alergias</div>
+      <div class="tag-list" id="detail-alergias"></div>
+    </div>
+    <div id="detail-enf-wrap" style="margin-top:14px; display:none;">
+      <div class="section-eyebrow">Enfermedades</div>
+      <div class="tag-list" id="detail-enf"></div>
+    </div>
+  </div>
+
+  <!-- TAB: PLAN -->
+  <div id="tab-plan" style="display:none; padding:20px 20px 100px;">
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">🍗 Ingredientes diarios</div>
+      <div id="plan-ingredientes-list"></div>
+      <button class="btn-add" id="btn-add-ingrediente">+ Añadir ingrediente</button>
+    </div>
+
+    <div class="card" style="margin:0 0 14px; display:none;" id="pct-card">
+      <div class="card-title">📊 Distribución</div>
+      <div id="plan-porcentajes"></div>
+    </div>
+
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">📋 Observaciones</div>
+      <textarea id="plan-obs" placeholder="Notas del veterinario o nutricionista…"></textarea>
+    </div>
+
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">💊 Suplementos y medicamentos</div>
+      <textarea id="plan-suplementos" placeholder="Ej: Omega 3 — 1 cápsula con el almuerzo…"></textarea>
+    </div>
+
+    <div class="card" style="margin:0 0 14px;">
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Comidas por día</label>
+          <input type="number" id="plan-comidas" value="2" min="1" max="5">
         </div>
-
-        <div class="config-row">
-            <div class="config-label"><span class="icon">🍽</span> Comidas por día</div>
-            <input type="number" id="comidas" value="2" min="1" max="5">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Agua diaria (ml)</label>
+          <input type="number" id="plan-agua" placeholder="500">
         </div>
+      </div>
     </div>
 
-    <!-- BUTTON -->
-    <button class="btn-calc" id="btn-calc">🧮 Calcular</button>
-
-    <!-- RESULTS -->
-    <div class="results card" id="resultados" style="margin-top:16px;">
-
-        <!-- RESUMEN NUTRICIONAL -->
-        <div class="results-header"><div class="dot"></div> Resumen</div>
-        <div class="summary-grid" id="resumen-grid"></div>
-
-        <div class="divider"></div>
-
-        <!-- PORCENTAJES -->
-        <div class="results-header"><div class="dot"></div> Distribución por ingrediente</div>
-        <div id="lista-porcentajes"></div>
-
-        <div class="divider"></div>
-
-        <!-- PORCIÓN POR BOLSA -->
-        <div class="results-header"><div class="dot"></div> Porción por bolsa</div>
-        <div id="lista-bolsa"></div>
-
-        <div class="divider"></div>
-
-        <!-- LISTA DE COMPRAS -->
-        <div class="results-header"><div class="dot"></div> Lista de compras total</div>
-        <div id="lista-compras"></div>
+    <div style="padding: 0 0 8px;">
+      <button class="btn-save" id="btn-save-plan">Guardar plan</button>
     </div>
+  </div>
+
+  <!-- TAB: PREPARAR -->
+  <div id="tab-prep" style="display:none; padding:20px 20px 100px;">
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">📦 Preparar para</div>
+      <div class="prep-period" id="prep-period-btns">
+        <button class="period-btn selected" data-dias="7">7<span class="period-sub">días</span></button>
+        <button class="period-btn" data-dias="14">14<span class="period-sub">días</span></button>
+        <button class="period-btn" data-dias="21">21<span class="period-sub">días</span></button>
+      </div>
+      <button class="btn-save" id="btn-calcular-prep" style="margin-top:0;">Calcular</button>
+    </div>
+
+    <div id="prep-results" style="display:none;">
+      <div class="card" style="margin:0 0 14px;">
+        <div class="card-title">📋 Resumen</div>
+        <div class="summary-grid" id="prep-summary"></div>
+        <div class="cook-note">
+          <span class="note-icon">🔥</span>
+          <span class="note-text">Pesos en <strong>crudo</strong>. Si cocinas los alimentos, considera que reducen aprox. un <strong>20%</strong> de su peso.</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin:0 0 14px;">
+        <div class="card-title">🛒 Lista de compras</div>
+        <div id="prep-compras"></div>
+      </div>
+
+      <div class="card" style="margin:0 0 14px;">
+        <div class="card-title">🥩 Por bolsa</div>
+        <div id="prep-bolsa"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-    const ingredientesIniciales = [
-        { nombre: "Pollo",       gramos: 250 },
-        { nombre: "Tilapia",     gramos: 100 },
-        { nombre: "Huevo",       gramos: 60  },
-        { nombre: "Batata",      gramos: 80  },
-        { nombre: "Apio",        gramos: 90  },
-        { nombre: "Arándanos",   gramos: 15  },
-    ];
+// ══════════════════════════════════
+//  STATE
+// ══════════════════════════════════
+let dogs = [];
+let currentDogId = null;
+let editingDogId = null;
+let bcsSelected = null;
+let esterilizado = false;
+let photoData = null;
 
-    function crearFila(nombre, gramos) {
-        const row = document.createElement('div');
-        row.className = 'ingredient-row';
+const KEY = 'cuenco_dogs_v1';
 
-        const inputNombre = document.createElement('input');
-        inputNombre.type = 'text';
-        inputNombre.className = 'ing-name';
-        inputNombre.placeholder = 'Ingrediente';
-        inputNombre.value = nombre;
+function save() { localStorage.setItem(KEY, JSON.stringify(dogs)); }
 
-        const inputGramos = document.createElement('input');
-        inputGramos.type = 'number';
-        inputGramos.className = 'ing-weight';
-        inputGramos.placeholder = 'g';
-        inputGramos.min = '0';
-        inputGramos.value = gramos !== '' ? String(gramos) : '';
+function load() {
+  try {
+    const d = localStorage.getItem(KEY);
+    if (d) dogs = JSON.parse(d);
+  } catch(e) { dogs = []; }
+}
 
-        const btnTrash = document.createElement('button');
-        btnTrash.className = 'btn-trash';
-        btnTrash.setAttribute('aria-label', 'Eliminar');
-        btnTrash.innerHTML = '🗑';
-        btnTrash.addEventListener('click', () => row.remove());
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
-        row.appendChild(inputNombre);
-        row.appendChild(inputGramos);
-        row.appendChild(btnTrash);
+function getDog(id) { return dogs.find(d => d.id === id); }
 
-        document.getElementById('lista-ingredientes').appendChild(row);
-    }
+// ══════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
 
-    // ── CARGAR DESDE localStorage O usar defaults ──
-    function cargarIngredientes() {
-        try {
-            const guardados = localStorage.getItem('cuenco_ingredientes');
-            const lista = guardados ? JSON.parse(guardados) : ingredientesIniciales;
-            lista.forEach(i => crearFila(i.nombre, i.gramos));
-        } catch(e) {
-            ingredientesIniciales.forEach(i => crearFila(i.nombre, i.gramos));
-        }
+// ══════════════════════════════════
+//  HOME
+// ══════════════════════════════════
+function renderHome() {
+  const list = document.getElementById('dogs-list');
+  if (dogs.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🐾</div>
+        <div class="empty-title">Ningún perro aún</div>
+        <div class="empty-desc">Toca + para agregar a tu primer compañero y comenzar su plan nutricional.</div>
+      </div>`;
+    return;
+  }
+  list.innerHTML = '';
+  dogs.forEach(dog => {
+    const card = document.createElement('div');
+    card.className = 'dog-card';
+    const hasIngredients = dog.plan && dog.plan.ingredientes && dog.plan.ingredientes.length > 0;
+    const avatarContent = dog.photo
+      ? `<img src="${dog.photo}" alt="${dog.nombre}">`
+      : (dog.especie === 'Gato' ? '🐱' : '🐶');
+    card.innerHTML = `
+      <div class="dog-avatar">${dog.photo ? `<img src="${dog.photo}">` : (dog.especie === 'Gato' ? '🐱' : '🐶')}</div>
+      <div class="dog-info">
+        <div class="dog-name">${dog.nombre || 'Sin nombre'}</div>
+        <div class="dog-meta">${[dog.raza, dog.edad, dog.peso ? dog.peso + ' kg' : ''].filter(Boolean).join(' · ')}</div>
+      </div>
+      <div class="dog-badge">${hasIngredients ? '✓ Plan' : 'Sin plan'}</div>`;
+    card.addEventListener('click', () => openDog(dog.id));
+    list.appendChild(card);
+  });
+}
 
-        try {
-            const cfg = localStorage.getItem('cuenco_config');
-            if (cfg) {
-                const { dias, comidas } = JSON.parse(cfg);
-                if (dias)    document.getElementById('dias').value    = dias;
-                if (comidas) document.getElementById('comidas').value = comidas;
-            }
-        } catch(e) {}
-    }
+// ══════════════════════════════════
+//  EDIT / NEW DOG
+// ══════════════════════════════════
+function openNewDog() {
+  editingDogId = null;
+  bcsSelected = null;
+  esterilizado = false;
+  photoData = null;
+  document.getElementById('edit-title').textContent = 'Nuevo perro';
+  document.getElementById('btn-delete-dog').style.display = 'none';
+  clearForm();
+  showScreen('edit');
+}
 
-    function guardarEstado(ingredientes, dias, comidas) {
-        try {
-            localStorage.setItem('cuenco_ingredientes', JSON.stringify(
-                ingredientes.map(i => ({ nombre: i.nombre, gramos: i.gDiarios }))
-            ));
-            localStorage.setItem('cuenco_config', JSON.stringify({ dias, comidas }));
-        } catch(e) {}
-    }
+function openEditDog(id) {
+  editingDogId = id;
+  const dog = getDog(id);
+  document.getElementById('edit-title').textContent = 'Editar perfil';
+  document.getElementById('btn-delete-dog').style.display = 'block';
+  fillForm(dog);
+  showScreen('edit');
+}
 
-    cargarIngredientes();
+function clearForm() {
+  ['f-nombre','f-raza','f-edad','f-peso','f-peso-ideal','f-alergias','f-enfermedades','f-consulta'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-sexo').value = '';
+  document.getElementById('f-especie').value = 'Perro';
+  document.getElementById('f-actividad').value = '';
+  document.querySelectorAll('.bcs-btn').forEach(b => b.classList.remove('selected'));
+  const tog = document.getElementById('toggle-esterilizado');
+  tog.classList.remove('on');
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'block';
+  document.getElementById('photo-hint').style.display = 'block';
+  photoData = null;
+}
 
-    document.getElementById('btn-add-ing').addEventListener('click', () => crearFila('', ''));
-    document.getElementById('btn-calc').addEventListener('click', calcular);
+function fillForm(dog) {
+  document.getElementById('f-nombre').value      = dog.nombre || '';
+  document.getElementById('f-raza').value        = dog.raza || '';
+  document.getElementById('f-edad').value        = dog.edad || '';
+  document.getElementById('f-peso').value        = dog.peso || '';
+  document.getElementById('f-peso-ideal').value  = dog.pesoIdeal || '';
+  document.getElementById('f-sexo').value        = dog.sexo || '';
+  document.getElementById('f-especie').value     = dog.especie || 'Perro';
+  document.getElementById('f-actividad').value   = dog.actividad || '';
+  document.getElementById('f-alergias').value    = dog.alergias || '';
+  document.getElementById('f-enfermedades').value= dog.enfermedades || '';
+  document.getElementById('f-consulta').value    = dog.consulta || '';
 
-    function calcular() {
-        const comidas = parseInt(document.getElementById('comidas').value) || 1;
-        const dias    = parseInt(document.getElementById('dias').value) || 1;
-        const filas   = document.querySelectorAll('.ingredient-row');
+  bcsSelected = dog.bcs || null;
+  document.querySelectorAll('.bcs-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.v) === bcsSelected);
+  });
 
-        const ingredientes = [];
-        let totalDiario = 0;
+  esterilizado = dog.esterilizado || false;
+  const tog = document.getElementById('toggle-esterilizado');
+  tog.classList.toggle('on', esterilizado);
 
-        filas.forEach(fila => {
-            const nombre = fila.querySelector('.ing-name').value.trim() || 'Sin nombre';
-            const gDiarios = parseFloat(fila.querySelector('.ing-weight').value) || 0;
-            if (gDiarios <= 0) return;
-            ingredientes.push({ nombre, gDiarios });
-            totalDiario += gDiarios;
-        });
+  photoData = dog.photo || null;
+  if (photoData) {
+    document.getElementById('photo-preview').src = photoData;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-hint').style.display = 'none';
+  } else {
+    document.getElementById('photo-preview').style.display = 'none';
+    document.getElementById('photo-placeholder').style.display = 'block';
+    document.getElementById('photo-hint').style.display = 'block';
+  }
+}
 
-        if (totalDiario === 0) {
-            alert('Agrega al menos un ingrediente con gramos mayores a 0.');
-            return;
-        }
+function saveDog() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  if (!nombre) { showToast('Escribe el nombre del perro'); return; }
 
-        // Guardar automáticamente al calcular
-        guardarEstado(ingredientes, dias, comidas);
+  const dogData = {
+    id: editingDogId || uid(),
+    nombre,
+    raza:          document.getElementById('f-raza').value.trim(),
+    sexo:          document.getElementById('f-sexo').value,
+    especie:       document.getElementById('f-especie').value,
+    edad:          document.getElementById('f-edad').value.trim(),
+    peso:          document.getElementById('f-peso').value,
+    pesoIdeal:     document.getElementById('f-peso-ideal').value,
+    actividad:     document.getElementById('f-actividad').value,
+    bcs:           bcsSelected,
+    esterilizado,
+    alergias:      document.getElementById('f-alergias').value.trim(),
+    enfermedades:  document.getElementById('f-enfermedades').value.trim(),
+    consulta:      document.getElementById('f-consulta').value,
+    photo:         photoData,
+    plan:          editingDogId ? (getDog(editingDogId).plan || defaultPlan()) : defaultPlan(),
+  };
 
-        const totalSemanal  = totalDiario * dias;
-        const totalBolsas   = dias * comidas;
-        const gPorBolsa     = totalDiario / comidas;
+  if (editingDogId) {
+    const idx = dogs.findIndex(d => d.id === editingDogId);
+    dogs[idx] = dogData;
+  } else {
+    dogs.push(dogData);
+  }
 
-        // ── RESUMEN ──
-        const resumenGrid = document.getElementById('resumen-grid');
-        resumenGrid.innerHTML = `
-            ${summaryItem('Total diario', formatGramos(totalDiario))}
-            ${summaryItem('Total (' + dias + ' días)', formatGramos(totalSemanal))}
-            ${summaryItem('Bolsas a preparar', totalBolsas)}
-            ${summaryItem('Peso por bolsa', formatGramos(gPorBolsa))}
-        `;
+  save();
+  showToast('Perfil guardado ✓');
+  setTimeout(() => {
+    currentDogId = dogData.id;
+    renderHome();
+    openDog(dogData.id);
+  }, 600);
+}
 
-        // ── PORCENTAJES ──
-        let htmlPct = '';
-        ingredientes.forEach(ing => {
-            const pct = (ing.gDiarios / totalDiario * 100).toFixed(1);
-            htmlPct += `
-                <div class="pct-row">
-                    <span class="pct-name">${ing.nombre}</span>
-                    <div class="pct-bar-wrap">
-                        <div class="pct-bar" style="width:${pct}%"></div>
-                    </div>
-                    <span class="pct-label">${pct}%</span>
-                </div>`;
-        });
-        document.getElementById('lista-porcentajes').innerHTML = htmlPct;
+function deleteDog() {
+  if (!confirm('¿Eliminar a este perro? Esta acción no se puede deshacer.')) return;
+  dogs = dogs.filter(d => d.id !== editingDogId);
+  save();
+  renderHome();
+  showScreen('home');
+}
 
-        // ── BOLSA ──
-        let htmlBolsa = '';
-        ingredientes.forEach(ing => {
-            const gBolsa = ing.gDiarios / comidas;
-            htmlBolsa += resultRow(ing.nombre, gBolsa.toFixed(1) + ' g');
-        });
-        htmlBolsa += resultRow('TOTAL BOLSA', gPorBolsa.toFixed(1) + ' g', true);
-        document.getElementById('lista-bolsa').innerHTML = htmlBolsa;
+function defaultPlan() {
+  return { ingredientes: [], obs: '', suplementos: '', comidas: 2, agua: '' };
+}
 
-        // ── COMPRAS ──
-        let htmlCompras = '';
-        ingredientes.forEach(ing => {
-            const gTotal = ing.gDiarios * dias;
-            htmlCompras += resultRow(ing.nombre, formatGramos(gTotal));
-        });
-        htmlCompras += resultRow('TOTAL A PREPARAR', formatGramos(totalSemanal), true);
-        document.getElementById('lista-compras').innerHTML = htmlCompras;
+// ══════════════════════════════════
+//  DOG DETAIL
+// ══════════════════════════════════
+function openDog(id) {
+  currentDogId = id;
+  const dog = getDog(id);
 
-        const el = document.getElementById('resultados');
-        el.style.display = 'block';
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    }
+  // Hero
+  const avatar = document.getElementById('detail-avatar');
+  avatar.innerHTML = dog.photo ? `<img src="${dog.photo}">` : (dog.especie === 'Gato' ? '🐱' : '🐶');
+  document.getElementById('detail-name').textContent = dog.nombre || '—';
+  document.getElementById('detail-breed').textContent = [dog.raza, dog.sexo, dog.especie].filter(Boolean).join(' · ');
 
-    function formatGramos(g) {
-        return g >= 1000 ? (g / 1000).toFixed(2) + ' kg' : g.toFixed(1) + ' g';
-    }
+  // Info grid
+  const infoData = [
+    { label: 'Edad', val: dog.edad || '—' },
+    { label: 'Peso actual', val: dog.peso ? dog.peso + ' kg' : '—' },
+    { label: 'Peso ideal', val: dog.pesoIdeal ? dog.pesoIdeal + ' kg' : '—' },
+    { label: 'Actividad', val: dog.actividad || '—' },
+    { label: 'BCS', val: dog.bcs ? dog.bcs + ' / 9' : '—' },
+    { label: 'Esterilizado', val: dog.esterilizado ? 'Sí' : 'No' },
+    { label: 'Última consulta', val: dog.consulta ? formatDate(dog.consulta) : '—' },
+  ];
+  document.getElementById('detail-grid').innerHTML = infoData.map(i =>
+    `<div class="info-tile"><div class="i-label">${i.label}</div><div class="i-val">${i.val}</div></div>`
+  ).join('');
 
-    function summaryItem(label, val) {
-        return `<div class="summary-item">
-                    <div class="s-label">${label}</div>
-                    <div class="s-val">${val}</div>
-                </div>`;
-    }
+  // Alergias
+  const alWrap = document.getElementById('detail-alergias-wrap');
+  const alTags = document.getElementById('detail-alergias');
+  if (dog.alergias) {
+    alWrap.style.display = 'block';
+    alTags.innerHTML = dog.alergias.split(',').map(a => `<span class="tag red">${a.trim()}</span>`).join('');
+  } else { alWrap.style.display = 'none'; }
 
-    function resultRow(nombre, valor, total = false) {
-        return `<div class="result-row${total ? ' total' : ''}">
-                    <span class="r-name">${nombre}</span>
-                    <span class="r-val">${valor}</span>
-                </div>`;
-    }
+  // Enfermedades
+  const enfWrap = document.getElementById('detail-enf-wrap');
+  const enfTags = document.getElementById('detail-enf');
+  if (dog.enfermedades && dog.enfermedades.toLowerCase() !== 'ninguna' && dog.enfermedades.trim() !== '') {
+    enfWrap.style.display = 'block';
+    enfTags.innerHTML = dog.enfermedades.split(',').map(e => `<span class="tag">${e.trim()}</span>`).join('');
+  } else { enfWrap.style.display = 'none'; }
+
+  // Plan tab
+  renderPlanTab(dog);
+
+  switchDogTab('perfil', document.querySelector('[data-tab="perfil"]'));
+  showScreen('dog');
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+// ══════════════════════════════════
+//  DOG TABS
+// ══════════════════════════════════
+function switchDogTab(name, btn) {
+  ['perfil','plan','prep'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('#screen-dog .tab-btn').forEach(b => {
+    const active = b.dataset.tab === name;
+    b.style.color = active ? 'var(--gold)' : 'var(--muted)';
+    b.style.fontWeight = active ? '600' : '500';
+    b.style.borderBottom = active ? '2px solid var(--gold)' : '2px solid transparent';
+  });
+}
+
+// ══════════════════════════════════
+//  PLAN TAB
+// ══════════════════════════════════
+function renderPlanTab(dog) {
+  const plan = dog.plan || defaultPlan();
+  document.getElementById('plan-obs').value         = plan.obs || '';
+  document.getElementById('plan-suplementos').value = plan.suplementos || '';
+  document.getElementById('plan-comidas').value     = plan.comidas || 2;
+  document.getElementById('plan-agua').value        = plan.agua || '';
+
+  const list = document.getElementById('plan-ingredientes-list');
+  list.innerHTML = '';
+  (plan.ingredientes || []).forEach(ing => addIngredienteRow(ing.nombre, ing.gramos));
+  updatePorcentajes();
+}
+
+function addIngredienteRow(nombre, gramos) {
+  const row = document.createElement('div');
+  row.className = 'ingredient-row-plan';
+
+  const inNombre = document.createElement('input');
+  inNombre.type = 'text'; inNombre.placeholder = 'Ingrediente';
+  inNombre.value = nombre || '';
+  inNombre.addEventListener('input', updatePorcentajes);
+
+  const inGramos = document.createElement('input');
+  inGramos.type = 'number'; inGramos.placeholder = 'g'; inGramos.min = '0';
+  inGramos.value = gramos !== undefined ? String(gramos) : '';
+  inGramos.addEventListener('input', updatePorcentajes);
+
+  const btnDel = document.createElement('button');
+  btnDel.className = 'btn-trash';
+  btnDel.innerHTML = '🗑';
+  btnDel.style.cssText = 'background:none;border:none;cursor:pointer;color:#c0a090;font-size:1.1rem;padding:6px;border-radius:8px;-webkit-appearance:none;';
+  btnDel.addEventListener('click', () => { row.remove(); updatePorcentajes(); });
+
+  row.appendChild(inNombre);
+  row.appendChild(inGramos);
+  row.appendChild(btnDel);
+  document.getElementById('plan-ingredientes-list').appendChild(row);
+}
+
+function getIngredientesFromDOM() {
+  const rows = document.querySelectorAll('.ingredient-row-plan');
+  const result = [];
+  rows.forEach(row => {
+    const nombre = row.querySelectorAll('input')[0].value.trim();
+    const gramos = parseFloat(row.querySelectorAll('input')[1].value) || 0;
+    if (gramos > 0) result.push({ nombre: nombre || 'Sin nombre', gramos });
+  });
+  return result;
+}
+
+function updatePorcentajes() {
+  const ings = getIngredientesFromDOM();
+  const total = ings.reduce((s, i) => s + i.gramos, 0);
+  const card = document.getElementById('pct-card');
+  const container = document.getElementById('plan-porcentajes');
+
+  if (total === 0 || ings.length === 0) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  container.innerHTML = ings.map(ing => {
+    const pct = (ing.gramos / total * 100).toFixed(1);
+    return `<div class="pct-row">
+      <span class="pct-name">${ing.nombre}</span>
+      <div class="pct-bar-wrap"><div class="pct-bar" style="width:${pct}%"></div></div>
+      <span class="pct-label">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+function savePlan() {
+  const dog = getDog(currentDogId);
+  if (!dog) return;
+  dog.plan = {
+    ingredientes: getIngredientesFromDOM(),
+    obs:          document.getElementById('plan-obs').value,
+    suplementos:  document.getElementById('plan-suplementos').value,
+    comidas:      parseInt(document.getElementById('plan-comidas').value) || 2,
+    agua:         document.getElementById('plan-agua').value,
+  };
+  save();
+  renderHome();
+  showToast('Plan guardado ✓');
+}
+
+// ══════════════════════════════════
+//  PREP TAB
+// ══════════════════════════════════
+let prepDias = 7;
+
+function calcularPrep() {
+  const dog = getDog(currentDogId);
+  if (!dog || !dog.plan) return;
+  const ings = dog.plan.ingredientes || [];
+  const comidas = dog.plan.comidas || 2;
+
+  if (ings.length === 0) { showToast('Agrega ingredientes en el Plan primero'); return; }
+
+  const totalDiario = ings.reduce((s, i) => s + i.gramos, 0);
+  const totalGeneral = totalDiario * prepDias;
+  const totalBolsas  = prepDias * comidas;
+  const gPorBolsa    = totalDiario / comidas;
+
+  // Summary
+  document.getElementById('prep-summary').innerHTML = [
+    { label: 'Total diario',    val: fmt(totalDiario) },
+    { label: `Total (${prepDias} días)`, val: fmt(totalGeneral) },
+    { label: 'Bolsas',          val: totalBolsas },
+    { label: 'Peso por bolsa',  val: fmt(gPorBolsa) },
+  ].map(t => `<div class="summary-tile"><div class="t-label">${t.label}</div><div class="t-val">${t.val}</div></div>`).join('');
+
+  // Compras
+  let htmlC = ings.map(ing => {
+    const gTotal = ing.gramos * prepDias;
+    return resultRow(ing.nombre, fmt(gTotal));
+  }).join('');
+  htmlC += resultRow('TOTAL', fmt(totalGeneral), true);
+  document.getElementById('prep-compras').innerHTML = htmlC;
+
+  // Por bolsa
+  let htmlB = ings.map(ing => {
+    return resultRow(ing.nombre, (ing.gramos / comidas).toFixed(1) + ' g');
+  }).join('');
+  htmlB += resultRow('TOTAL BOLSA', gPorBolsa.toFixed(1) + ' g', true);
+  document.getElementById('prep-bolsa').innerHTML = htmlB;
+
+  document.getElementById('prep-results').style.display = 'block';
+  setTimeout(() => document.getElementById('prep-results').scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+
+function fmt(g) {
+  return g >= 1000 ? (g / 1000).toFixed(2) + ' kg' : g.toFixed(1) + ' g';
+}
+
+function resultRow(nombre, valor, total = false) {
+  return `<div class="result-row${total ? ' total' : ''}">
+    <span class="r-name">${nombre}</span>
+    <span class="r-val">${valor}</span>
+  </div>`;
+}
+
+// ══════════════════════════════════
+//  TOAST
+// ══════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ══════════════════════════════════
+//  EVENTS
+// ══════════════════════════════════
+document.getElementById('btn-new-dog').addEventListener('click', openNewDog);
+document.getElementById('back-from-edit').addEventListener('click', () => { renderHome(); showScreen('home'); });
+document.getElementById('back-from-dog').addEventListener('click', () => { renderHome(); showScreen('home'); });
+document.getElementById('btn-edit-dog').addEventListener('click', () => openEditDog(currentDogId));
+document.getElementById('btn-save-dog').addEventListener('click', saveDog);
+document.getElementById('btn-delete-dog').addEventListener('click', deleteDog);
+document.getElementById('btn-save-plan').addEventListener('click', savePlan);
+document.getElementById('btn-add-ingrediente').addEventListener('click', () => addIngredienteRow('', ''));
+document.getElementById('btn-calcular-prep').addEventListener('click', calcularPrep);
+
+// BCS
+document.getElementById('bcs-scale').addEventListener('click', e => {
+  const btn = e.target.closest('.bcs-btn');
+  if (!btn) return;
+  bcsSelected = parseInt(btn.dataset.v);
+  document.querySelectorAll('.bcs-btn').forEach(b => b.classList.toggle('selected', b === btn));
+});
+
+// Toggle esterilizado
+document.getElementById('toggle-esterilizado').addEventListener('click', function() {
+  esterilizado = !esterilizado;
+  this.classList.toggle('on', esterilizado);
+});
+
+// Photo
+document.getElementById('photo-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoData = e.target.result;
+    document.getElementById('photo-preview').src = photoData;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-hint').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+});
+
+// Prep period buttons
+document.getElementById('prep-period-btns').addEventListener('click', e => {
+  const btn = e.target.closest('.period-btn');
+  if (!btn) return;
+  prepDias = parseInt(btn.dataset.dias);
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('selected', b === btn));
+  document.getElementById('prep-results').style.display = 'none';
+});
+
+// ══════════════════════════════════
+//  INIT
+// ══════════════════════════════════
+load();
+renderHome();
 </script>
 </body>
 </html>
