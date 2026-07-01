@@ -959,7 +959,44 @@ input[type="number"] { -moz-appearance: textfield; }
       <div class="section-eyebrow">Enfermedades</div>
       <div class="tag-list" id="detail-enf"></div>
     </div>
+    <!-- RECORDATORIOS -->
     <div style="margin-top:24px;">
+      <div class="section-eyebrow">Recordatorios de comida</div>
+      <div class="card" style="margin:10px 0 0; padding:18px 18px;">
+        <div class="config-row" style="padding:8px 0;">
+          <div class="config-label">
+            <span>🌅</span>
+            <div>
+              <div style="font-size:0.92rem; font-weight:500;">Desayuno</div>
+              <input type="time" id="rec-hora-1" value="07:00"
+                style="font-size:0.8rem; color:var(--muted); background:none; border:none;
+                       padding:0; margin-top:2px; width:80px; outline:none; -webkit-appearance:none;">
+            </div>
+          </div>
+          <button class="toggle" id="toggle-rec-1"></button>
+        </div>
+        <div class="config-row" style="padding:8px 0;">
+          <div class="config-label">
+            <span>🌆</span>
+            <div>
+              <div style="font-size:0.92rem; font-weight:500;">Cena</div>
+              <input type="time" id="rec-hora-2" value="17:00"
+                style="font-size:0.8rem; color:var(--muted); background:none; border:none;
+                       padding:0; margin-top:2px; width:80px; outline:none; -webkit-appearance:none;">
+            </div>
+          </div>
+          <button class="toggle" id="toggle-rec-2"></button>
+        </div>
+        <div id="notif-aviso" style="display:none; margin-top:12px; padding:10px 12px;
+             background:rgba(200,146,42,0.08); border:1px solid rgba(200,146,42,0.2);
+             border-radius:10px; font-size:0.78rem; color:var(--muted); line-height:1.5;">
+          📱 Para recibir notificaciones en iPhone, agrega esta app a tu <strong>pantalla de inicio</strong>
+          desde Safari (botón compartir → "Añadir a pantalla de inicio").
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
       <button class="btn-share" id="btn-exportar-perfil">↗ Compartir resumen completo</button>
     </div>
   </div>
@@ -2006,10 +2043,141 @@ document.getElementById('btn-share-prep').addEventListener('click', () => {
 });
 
 // ══════════════════════════════════
+//  RECORDATORIOS
+// ══════════════════════════════════
+const REC_KEY = 'cuenco_recordatorios';
+let recIntervals = [];
+
+function cargarRecordatorios() {
+  try {
+    const data = localStorage.getItem(REC_KEY);
+    if (!data) return;
+    const rec = JSON.parse(data);
+    if (rec.hora1) document.getElementById('rec-hora-1').value = rec.hora1;
+    if (rec.hora2) document.getElementById('rec-hora-2').value = rec.hora2;
+    if (rec.activo1) activarToggleRec('toggle-rec-1', true);
+    if (rec.activo2) activarToggleRec('toggle-rec-2', true);
+    if (rec.activo1 || rec.activo2) iniciarReloj();
+  } catch(e) {}
+}
+
+function guardarRecordatorios() {
+  const activo1 = document.getElementById('toggle-rec-1').classList.contains('on');
+  const activo2 = document.getElementById('toggle-rec-2').classList.contains('on');
+  localStorage.setItem(REC_KEY, JSON.stringify({
+    hora1:   document.getElementById('rec-hora-1').value,
+    hora2:   document.getElementById('rec-hora-2').value,
+    activo1, activo2,
+  }));
+}
+
+function activarToggleRec(id, forzar) {
+  const btn = document.getElementById(id);
+  if (forzar !== undefined) {
+    btn.classList.toggle('on', forzar);
+  } else {
+    btn.classList.toggle('on');
+  }
+}
+
+async function pedirPermisoNotificacion() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') return false;
+  const result = await Notification.requestPermission();
+  return result === 'granted';
+}
+
+function iniciarReloj() {
+  // Limpiar intervalos previos
+  recIntervals.forEach(clearInterval);
+  recIntervals = [];
+
+  const intervalo = setInterval(() => {
+    const ahora   = new Date();
+    const hh      = String(ahora.getHours()).padStart(2, '0');
+    const mm      = String(ahora.getMinutes()).padStart(2, '0');
+    const horaAhora = `${hh}:${mm}`;
+    const seg     = ahora.getSeconds();
+    if (seg !== 0) return; // solo dispara en el minuto exacto
+
+    const activo1 = document.getElementById('toggle-rec-1').classList.contains('on');
+    const activo2 = document.getElementById('toggle-rec-2').classList.contains('on');
+    const hora1   = document.getElementById('rec-hora-1').value;
+    const hora2   = document.getElementById('rec-hora-2').value;
+    const dog     = getDog(currentDogId) || dogs[0];
+    const nombre  = dog ? dog.nombre : 'tu perro';
+
+    if (activo1 && horaAhora === hora1) {
+      enviarNotificacion(`🌅 Hora del desayuno de ${nombre}`, `Son las ${hora1} — hora de comer 🐾`);
+    }
+    if (activo2 && horaAhora === hora2) {
+      enviarNotificacion(`🌆 Hora de la cena de ${nombre}`, `Son las ${hora2} — hora de comer 🐾`);
+    }
+  }, 1000);
+
+  recIntervals.push(intervalo);
+}
+
+function enviarNotificacion(titulo, cuerpo) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  new Notification(titulo, {
+    body: cuerpo,
+    icon: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f43e.png',
+  });
+}
+
+function mostrarAvisoiOS() {
+  const aviso = document.getElementById('notif-aviso');
+  if (!aviso) return;
+  // Mostrar aviso si es iOS Safari sin estar instalada
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const instalada = window.navigator.standalone;
+  aviso.style.display = (esIOS && !instalada) ? 'block' : 'none';
+}
+
+// Toggles recordatorios
+document.getElementById('toggle-rec-1').addEventListener('click', async function() {
+  if (!this.classList.contains('on')) {
+    const ok = await pedirPermisoNotificacion();
+    if (!ok) { showToast('Activa las notificaciones en ajustes'); return; }
+  }
+  activarToggleRec('toggle-rec-1');
+  guardarRecordatorios();
+  const hayActivo = document.getElementById('toggle-rec-1').classList.contains('on')
+                 || document.getElementById('toggle-rec-2').classList.contains('on');
+  if (hayActivo) iniciarReloj();
+  mostrarAvisoiOS();
+  showToast(document.getElementById('toggle-rec-1').classList.contains('on')
+    ? 'Recordatorio activado ✓' : 'Recordatorio desactivado');
+});
+
+document.getElementById('toggle-rec-2').addEventListener('click', async function() {
+  if (!this.classList.contains('on')) {
+    const ok = await pedirPermisoNotificacion();
+    if (!ok) { showToast('Activa las notificaciones en ajustes'); return; }
+  }
+  activarToggleRec('toggle-rec-2');
+  guardarRecordatorios();
+  const hayActivo = document.getElementById('toggle-rec-1').classList.contains('on')
+                 || document.getElementById('toggle-rec-2').classList.contains('on');
+  if (hayActivo) iniciarReloj();
+  mostrarAvisoiOS();
+  showToast(document.getElementById('toggle-rec-2').classList.contains('on')
+    ? 'Recordatorio activado ✓' : 'Recordatorio desactivado');
+});
+
+// Guardar al cambiar la hora
+document.getElementById('rec-hora-1').addEventListener('change', guardarRecordatorios);
+document.getElementById('rec-hora-2').addEventListener('change', guardarRecordatorios);
+
+// ══════════════════════════════════
 //  INIT
 // ══════════════════════════════════
 load();
 renderHome();
+cargarRecordatorios();
+mostrarAvisoiOS();
 </script>
 </body>
 </html>
