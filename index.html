@@ -647,6 +647,29 @@ input[type="number"] { -moz-appearance: textfield; }
 
 .btn-danger:hover { background: rgba(192,57,43,0.05); }
 
+.btn-share {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: var(--gold-dk);
+  border: 1.5px solid rgba(200,146,42,0.35);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.1px;
+}
+
+.btn-share:hover { background: rgba(200,146,42,0.06); border-color: var(--gold); }
+
 /* ── PCTS BAR ── */
 .pct-row {
   display: flex; align-items: center; gap: 10px;
@@ -975,6 +998,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
     <div style="padding: 0 0 8px;">
       <button class="btn-save" id="btn-save-plan">Guardar plan</button>
+      <button class="btn-share" id="btn-share-plan">↗ Compartir plan</button>
     </div>
   </div>
 
@@ -1009,6 +1033,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <div class="card-title">🥩 Por bolsa</div>
         <div id="prep-bolsa"></div>
       </div>
+      <button class="btn-share" id="btn-share-prep">↗ Compartir lista de compras</button>
     </div>
   </div>
 </div>
@@ -1434,6 +1459,121 @@ function showToast(msg) {
 }
 
 // ══════════════════════════════════
+//  COMPARTIR
+// ══════════════════════════════════
+function generarTextoPlan(dog) {
+  const plan = dog.plan || {};
+  const ings = plan.ingredientes || [];
+  const totalDiario = ings.reduce((s, i) => s + i.gramos, 0);
+  const hoy = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+  let texto = `🐾 Cuenco Natural — Plan de ${dog.nombre}
+`;
+  texto += `📅 ${hoy}
+`;
+
+  const meta = [
+    dog.peso         ? `Peso: ${dog.peso} kg`  : '',
+    dog.actividad    ? dog.actividad            : '',
+    dog.esterilizado ? 'Esterilizado/a'        : '',
+  ].filter(Boolean).join(' · ');
+  if (meta) texto += `${meta}
+`;
+
+  texto += `
+🍗 Plan diario (${totalDiario} g)
+`;
+  ings.forEach(ing => {
+    const pct = totalDiario > 0 ? (ing.gramos / totalDiario * 100).toFixed(1) : 0;
+    texto += `• ${ing.nombre} — ${ing.gramos} g (${pct}%)
+`;
+  });
+
+  if (plan.suplementos && plan.suplementos.trim()) {
+    texto += `
+💊 Suplementos
+${plan.suplementos.trim()}
+`;
+  }
+
+  if (plan.agua) {
+    texto += `
+💧 Agua diaria: ${plan.agua} ml
+`;
+  }
+
+  if (plan.obs && plan.obs.trim()) {
+    texto += `
+📋 Observaciones
+${plan.obs.trim()}
+`;
+  }
+
+  texto += `
+— Generado con Cuenco Natural`;
+  return texto;
+}
+
+function generarTextoPrep(dog) {
+  const plan = dog.plan || {};
+  const ings = plan.ingredientes || [];
+  const comidas = plan.comidas || 2;
+  const totalDiario = ings.reduce((s, i) => s + i.gramos, 0);
+  const totalGeneral = totalDiario * prepDias;
+  const totalBolsas  = prepDias * comidas;
+  const gPorBolsa    = totalDiario / comidas;
+
+  let texto = `🐾 Lista de compras — ${dog.nombre}
+`;
+  texto += `📦 Preparación para ${prepDias} días
+
+`;
+
+  texto += `🛒 Compras
+`;
+  ings.forEach(ing => {
+    const gTotal = ing.gramos * prepDias;
+    texto += `• ${ing.nombre}: ${fmt(gTotal)}
+`;
+  });
+  texto += `Total: ${fmt(totalGeneral)}
+`;
+
+  texto += `
+📋 Resumen
+`;
+  texto += `• Bolsas a preparar: ${totalBolsas}
+`;
+  texto += `• Peso por bolsa: ${fmt(gPorBolsa)}
+`;
+
+  texto += `
+🔥 Pesos en crudo. Si cocinas, descuenta aprox. 20% del peso final.
+`;
+  texto += `
+— Generado con Cuenco Natural`;
+  return texto;
+}
+
+async function compartir(texto) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Cuenco Natural', text: texto });
+    } catch(e) {
+      // usuario canceló, no hacer nada
+    }
+  } else {
+    // fallback: copiar al portapapeles
+    try {
+      await navigator.clipboard.writeText(texto);
+      showToast('Copiado al portapapeles ✓');
+    } catch(e) {
+      showToast('No se pudo compartir');
+    }
+  }
+}
+
+// ══════════════════════════════════
 //  EVENTS
 // ══════════════════════════════════
 document.getElementById('btn-new-dog').addEventListener('click', openNewDog);
@@ -1482,6 +1622,34 @@ document.getElementById('prep-period-btns').addEventListener('click', e => {
   prepDias = parseInt(btn.dataset.dias);
   document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('selected', b === btn));
   document.getElementById('prep-results').style.display = 'none';
+});
+
+// Compartir plan
+document.getElementById('btn-share-plan').addEventListener('click', () => {
+  const dog = getDog(currentDogId);
+  if (!dog) return;
+  // Guardar primero para incluir cambios no guardados del DOM
+  const ings = getIngredientesFromDOM();
+  const planTemp = {
+    ingredientes: ings,
+    obs:         document.getElementById('plan-obs').value,
+    suplementos: document.getElementById('plan-suplementos').value,
+    comidas:     parseInt(document.getElementById('plan-comidas').value) || 2,
+    agua:        document.getElementById('plan-agua').value,
+  };
+  const dogTemp = { ...dog, plan: planTemp };
+  compartir(generarTextoPlan(dogTemp));
+});
+
+// Compartir prep
+document.getElementById('btn-share-prep').addEventListener('click', () => {
+  const dog = getDog(currentDogId);
+  if (!dog) return;
+  if (!dog.plan || !dog.plan.ingredientes || dog.plan.ingredientes.length === 0) {
+    showToast('Guarda el plan primero');
+    return;
+  }
+  compartir(generarTextoPrep(dog));
 });
 
 // ══════════════════════════════════
