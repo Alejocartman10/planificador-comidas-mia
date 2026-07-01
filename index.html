@@ -959,6 +959,9 @@ input[type="number"] { -moz-appearance: textfield; }
       <div class="section-eyebrow">Enfermedades</div>
       <div class="tag-list" id="detail-enf"></div>
     </div>
+    <div style="margin-top:24px;">
+      <button class="btn-share" id="btn-exportar-perfil">↗ Compartir resumen completo</button>
+    </div>
   </div>
 
   <!-- TAB: PLAN -->
@@ -1695,6 +1698,112 @@ function eliminarPeso(id) {
 // ══════════════════════════════════
 //  COMPARTIR
 // ══════════════════════════════════
+function generarResumenCompleto(dog) {
+  const hoy = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+  let txt = '';
+
+  // Encabezado
+  txt += `🐾 CUENCO NATURAL
+`;
+  txt += `Reporte de ${dog.nombre}
+`;
+  txt += `Generado el ${hoy}
+`;
+  txt += `${'─'.repeat(30)}
+
+`;
+
+  // Perfil
+  txt += `👤 PERFIL
+`;
+  if (dog.raza)        txt += `Raza: ${dog.raza}
+`;
+  if (dog.sexo)        txt += `Sexo: ${dog.sexo}
+`;
+  if (dog.edad)        txt += `Edad: ${dog.edad}
+`;
+  if (dog.peso)        txt += `Peso actual: ${dog.peso} kg
+`;
+  if (dog.pesoIdeal)   txt += `Peso ideal: ${dog.pesoIdeal} kg
+`;
+  if (dog.actividad)   txt += `Actividad: ${dog.actividad}
+`;
+  if (dog.bcs)         txt += `Condición corporal (BCS): ${dog.bcs}/9
+`;
+  txt += `Esterilizado/a: ${dog.esterilizado ? 'Sí' : 'No'}
+`;
+  if (dog.consulta)    txt += `Última consulta: ${formatDate(dog.consulta)}
+`;
+  if (dog.alergias)    txt += `Alergias: ${dog.alergias}
+`;
+  if (dog.enfermedades) txt += `Enfermedades: ${dog.enfermedades}
+`;
+
+  // Plan nutricional
+  const plan = dog.plan || {};
+  const ings = plan.ingredientes || [];
+  if (ings.length > 0) {
+    const totalDiario = ings.reduce((s, i) => s + i.gramos, 0);
+    txt += `
+${'─'.repeat(30)}
+`;
+    txt += `🍗 PLAN NUTRICIONAL
+`;
+    txt += `Total diario: ${totalDiario} g
+
+`;
+    ings.forEach(ing => {
+      const pct = (ing.gramos / totalDiario * 100).toFixed(1);
+      txt += `• ${ing.nombre}: ${ing.gramos} g (${pct}%)
+`;
+    });
+    if (plan.comidas) txt += `
+Comidas por día: ${plan.comidas}
+`;
+    if (plan.agua)    txt += `Agua diaria: ${plan.agua} ml
+`;
+    if (plan.suplementos && plan.suplementos.trim()) {
+      txt += `
+💊 Suplementos
+${plan.suplementos.trim()}
+`;
+    }
+    if (plan.obs && plan.obs.trim()) {
+      txt += `
+📋 Observaciones
+${plan.obs.trim()}
+`;
+    }
+  }
+
+  // Historial de peso
+  const historial = (dog.pesoHistorial || []).slice()
+    .sort((a,b) => b.fecha.localeCompare(a.fecha))
+    .slice(0, 8); // últimos 8 registros
+
+  if (historial.length > 0) {
+    txt += `
+${'─'.repeat(30)}
+`;
+    txt += `⚖️ EVOLUCIÓN DE PESO
+`;
+    historial.forEach((r, i) => {
+      const prev = historial[i + 1];
+      let delta = '';
+      if (prev) {
+        const diff = (parseFloat(r.peso) - parseFloat(prev.peso)).toFixed(1);
+        delta = diff > 0 ? ` ▲${Math.abs(diff)}kg` : diff < 0 ? ` ▼${Math.abs(diff)}kg` : ' →';
+      }
+      txt += `• ${formatDate(r.fecha)}: ${r.peso} kg${delta}
+`;
+    });
+  }
+
+  txt += `
+— Cuenco Natural`;
+  return txt;
+}
+
 function generarTextoPlan(dog) {
   const plan = dog.plan || {};
   const ings = plan.ingredientes || [];
@@ -1847,6 +1956,13 @@ document.getElementById('photo-input').addEventListener('change', function() {
     document.getElementById('photo-hint').style.display = 'none';
   };
   reader.readAsDataURL(file);
+});
+
+// Exportar perfil completo
+document.getElementById('btn-exportar-perfil').addEventListener('click', () => {
+  const dog = getDog(currentDogId);
+  if (!dog) return;
+  compartir(generarResumenCompleto(dog));
 });
 
 // Peso
