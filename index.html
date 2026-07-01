@@ -1325,13 +1325,14 @@ function openDog(id) {
   document.getElementById('detail-breed').textContent = [dog.raza, dog.sexo, dog.especie].filter(Boolean).join(' · ');
 
   // Info grid
+  const labelEsterilizado = dog.sexo === 'Hembra' ? 'Esterilizada' : 'Esterilizado';
   const infoData = [
     { label: 'Edad', val: dog.edad || '—' },
     { label: 'Peso actual', val: dog.peso ? dog.peso + ' kg' : '—' },
     { label: 'Peso ideal', val: dog.pesoIdeal ? dog.pesoIdeal + ' kg' : '—' },
     { label: 'Actividad', val: dog.actividad || '—' },
     { label: 'BCS', val: dog.bcs ? dog.bcs + ' / 9' : '—' },
-    { label: 'Esterilizado', val: dog.esterilizado ? 'Sí' : 'No' },
+    { label: labelEsterilizado, val: dog.esterilizado ? 'Sí' : 'No' },
     { label: 'Última consulta', val: dog.consulta ? formatDate(dog.consulta) : '—' },
   ];
   document.getElementById('detail-grid').innerHTML = infoData.map(i =>
@@ -1341,7 +1342,8 @@ function openDog(id) {
   // Alergias
   const alWrap = document.getElementById('detail-alergias-wrap');
   const alTags = document.getElementById('detail-alergias');
-  if (dog.alergias) {
+  const alVal  = (dog.alergias || '').trim().toLowerCase();
+  if (dog.alergias && alVal !== 'ninguna' && alVal !== 'none' && alVal !== '') {
     alWrap.style.display = 'block';
     alTags.innerHTML = dog.alergias.split(',').map(a => `<span class="tag red">${a.trim()}</span>`).join('');
   } else { alWrap.style.display = 'none'; }
