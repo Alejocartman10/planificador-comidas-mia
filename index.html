@@ -945,6 +945,7 @@ input[type="number"] { -moz-appearance: textfield; }
     <button class="tab-btn active" data-tab="perfil" onclick="switchDogTab('perfil',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:600; color:var(--gold); border:none; background:none; cursor:pointer; border-bottom:2px solid var(--gold);">Perfil</button>
     <button class="tab-btn" data-tab="plan" onclick="switchDogTab('plan',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:500; color:var(--muted); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent;">Plan</button>
     <button class="tab-btn" data-tab="prep" onclick="switchDogTab('prep',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:500; color:var(--muted); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent;">Preparar</button>
+    <button class="tab-btn" data-tab="peso" onclick="switchDogTab('peso',this)" style="padding:14px 0; flex:1; font-size:0.82rem; font-weight:500; color:var(--muted); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent;">Peso</button>
   </div>
 
   <!-- TAB: PERFIL -->
@@ -1035,6 +1036,42 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
       <button class="btn-share" id="btn-share-prep">↗ Compartir lista de compras</button>
     </div>
+  </div>
+
+  <!-- TAB: PESO -->
+  <div id="tab-peso" style="display:none; padding:20px 20px 100px;">
+
+    <!-- Registrar nuevo peso -->
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">⚖️ Registrar peso</div>
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Peso (kg)</label>
+          <input type="number" id="peso-input" placeholder="0.0" step="0.1" min="0">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Fecha</label>
+          <input type="date" id="peso-fecha">
+        </div>
+      </div>
+      <button class="btn-save" id="btn-registrar-peso" style="margin-top:14px;">Registrar</button>
+    </div>
+
+    <!-- Gráfica -->
+    <div class="card" style="margin:0 0 14px; display:none;" id="peso-chart-card">
+      <div class="card-title">📈 Evolución</div>
+      <div style="position:relative; height:180px; margin-top:8px;">
+        <canvas id="peso-canvas" style="width:100%; height:180px;"></canvas>
+      </div>
+      <div id="peso-chart-legend" style="display:flex; gap:16px; margin-top:12px; justify-content:center; flex-wrap:wrap;"></div>
+    </div>
+
+    <!-- Historial -->
+    <div class="card" style="margin:0 0 14px; display:none;" id="peso-historial-card">
+      <div class="card-title">📋 Historial</div>
+      <div id="peso-historial-list"></div>
+    </div>
+
   </div>
 </div>
 
@@ -1294,9 +1331,10 @@ function formatDate(d) {
 //  DOG TABS
 // ══════════════════════════════════
 function switchDogTab(name, btn) {
-  ['perfil','plan','prep'].forEach(t => {
+  ['perfil','plan','prep','peso'].forEach(t => {
     document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
   });
+  if (name === 'peso') renderPesoTab(getDog(currentDogId));
   document.querySelectorAll('#screen-dog .tab-btn').forEach(b => {
     const active = b.dataset.tab === name;
     b.style.color = active ? 'var(--gold)' : 'var(--muted)';
@@ -1459,6 +1497,202 @@ function showToast(msg) {
 }
 
 // ══════════════════════════════════
+//  PESO
+// ══════════════════════════════════
+function renderPesoTab(dog) {
+  if (!dog) return;
+
+  // Fecha de hoy por defecto
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('peso-fecha').value = hoy;
+  document.getElementById('peso-input').value = '';
+
+  const registros = (dog.pesoHistorial || []).slice().sort((a,b) => a.fecha.localeCompare(b.fecha));
+
+  const chartCard    = document.getElementById('peso-chart-card');
+  const histCard     = document.getElementById('peso-historial-card');
+  const histList     = document.getElementById('peso-historial-list');
+
+  if (registros.length === 0) {
+    chartCard.style.display = 'none';
+    histCard.style.display  = 'none';
+    return;
+  }
+
+  chartCard.style.display = 'block';
+  histCard.style.display  = 'block';
+
+  // ── HISTORIAL ──
+  const sorted = [...registros].reverse();
+  histList.innerHTML = sorted.map((r, idx) => `
+    <div style="display:flex; justify-content:space-between; align-items:center;
+                padding:10px 0; border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:0.88rem; font-weight:600; color:var(--ink);">${r.peso} kg</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">${formatDate(r.fecha)}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        ${idx < sorted.length - 1 ? deltaBadge(r.peso, sorted[idx+1].peso) : '<span style="font-size:0.75rem;color:var(--muted);">Inicio</span>'}
+        <button onclick="eliminarPeso('${r.id}')"
+          style="background:none;border:none;cursor:pointer;color:#c0a090;font-size:1rem;padding:4px;-webkit-appearance:none;">🗑</button>
+      </div>
+    </div>`).join('');
+
+  // ── CANVAS ──
+  dibujarGrafica(registros, dog.pesoIdeal ? parseFloat(dog.pesoIdeal) : null);
+
+  // ── LEYENDA ──
+  const legend = document.getElementById('peso-chart-legend');
+  legend.innerHTML = `
+    <span style="font-size:0.75rem;color:var(--gold);font-weight:600;">● Peso real</span>
+    ${dog.pesoIdeal ? '<span style="font-size:0.75rem;color:var(--green);font-weight:600;">- - Peso ideal</span>' : ''}`;
+}
+
+function deltaBadge(actual, anterior) {
+  const diff = (parseFloat(actual) - parseFloat(anterior)).toFixed(1);
+  const up   = diff > 0;
+  const zero = diff == 0;
+  const color = zero ? 'var(--muted)' : up ? '#c0392b' : 'var(--green)';
+  const icon  = zero ? '→' : up ? '▲' : '▼';
+  return `<span style="font-size:0.78rem;font-weight:700;color:${color};">${icon} ${Math.abs(diff)} kg</span>`;
+}
+
+function dibujarGrafica(registros, pesoIdeal) {
+  const canvas = document.getElementById('peso-canvas');
+  const dpr    = window.devicePixelRatio || 1;
+  const W      = canvas.parentElement.clientWidth;
+  const H      = 180;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pesos  = registros.map(r => parseFloat(r.peso));
+  const allVals = pesoIdeal ? [...pesos, pesoIdeal] : pesos;
+  const minP   = Math.min(...allVals) - 1;
+  const maxP   = Math.max(...allVals) + 1;
+  const pad    = { t:16, r:16, b:32, l:40 };
+  const gW     = W - pad.l - pad.r;
+  const gH     = H - pad.t - pad.b;
+
+  function xOf(i)   { return pad.l + (i / (registros.length - 1 || 1)) * gW; }
+  function yOf(val) { return pad.t + (1 - (val - minP) / (maxP - minP)) * gH; }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(232,223,208,0.8)';
+  ctx.lineWidth   = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (i / 4) * gH;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + gW, y); ctx.stroke();
+    const val = (maxP - (i / 4) * (maxP - minP)).toFixed(1);
+    ctx.fillStyle = '#8a7e74';
+    ctx.font = `${10 * dpr / dpr}px DM Sans, sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.fillText(val, pad.l - 6, y + 4);
+  }
+
+  // Peso ideal línea punteada
+  if (pesoIdeal) {
+    const yIdeal = yOf(pesoIdeal);
+    ctx.save();
+    ctx.strokeStyle = '#4a7c59';
+    ctx.lineWidth   = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.l, yIdeal); ctx.lineTo(pad.l + gW, yIdeal); ctx.stroke();
+    ctx.restore();
+  }
+
+  if (registros.length === 1) {
+    // Solo un punto
+    ctx.beginPath();
+    ctx.arc(xOf(0), yOf(pesos[0]), 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8922a';
+    ctx.fill();
+  } else {
+    // Área bajo la curva
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(pesos[0]));
+    for (let i = 1; i < registros.length; i++) ctx.lineTo(xOf(i), yOf(pesos[i]));
+    ctx.lineTo(xOf(registros.length - 1), pad.t + gH);
+    ctx.lineTo(xOf(0), pad.t + gH);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(200,146,42,0.08)';
+    ctx.fill();
+
+    // Línea principal
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(pesos[0]));
+    for (let i = 1; i < registros.length; i++) ctx.lineTo(xOf(i), yOf(pesos[i]));
+    ctx.strokeStyle = '#c8922a';
+    ctx.lineWidth   = 2.5;
+    ctx.lineJoin    = 'round';
+    ctx.stroke();
+
+    // Puntos
+    registros.forEach((r, i) => {
+      ctx.beginPath();
+      ctx.arc(xOf(i), yOf(pesos[i]), 4, 0, Math.PI * 2);
+      ctx.fillStyle   = '#fff';
+      ctx.strokeStyle = '#c8922a';
+      ctx.lineWidth   = 2;
+      ctx.fill(); ctx.stroke();
+    });
+  }
+
+  // Fechas eje X
+  ctx.fillStyle  = '#8a7e74';
+  ctx.font       = '10px DM Sans, sans-serif';
+  ctx.textAlign  = 'center';
+  const step = registros.length <= 5 ? 1 : Math.ceil(registros.length / 5);
+  registros.forEach((r, i) => {
+    if (i % step !== 0 && i !== registros.length - 1) return;
+    const parts = r.fecha.split('-');
+    ctx.fillText(`${parts[2]}/${parts[1]}`, xOf(i), H - 8);
+  });
+}
+
+function registrarPeso() {
+  const dog  = getDog(currentDogId);
+  if (!dog) return;
+  const peso  = parseFloat(document.getElementById('peso-input').value);
+  const fecha = document.getElementById('peso-fecha').value;
+  if (!peso || peso <= 0) { showToast('Ingresa un peso válido'); return; }
+  if (!fecha)             { showToast('Selecciona una fecha'); return; }
+
+  if (!dog.pesoHistorial) dog.pesoHistorial = [];
+
+  // Evitar duplicado de fecha
+  const existente = dog.pesoHistorial.find(r => r.fecha === fecha);
+  if (existente) {
+    existente.peso = peso;
+  } else {
+    dog.pesoHistorial.push({ id: uid(), fecha, peso });
+  }
+
+  // Actualizar peso actual del perfil con el más reciente
+  const sorted = dog.pesoHistorial.slice().sort((a,b) => b.fecha.localeCompare(a.fecha));
+  dog.peso = sorted[0].peso;
+
+  save();
+  showToast('Peso registrado ✓');
+  renderPesoTab(dog);
+}
+
+function eliminarPeso(id) {
+  const dog = getDog(currentDogId);
+  if (!dog) return;
+  dog.pesoHistorial = (dog.pesoHistorial || []).filter(r => r.id !== id);
+  if (dog.pesoHistorial.length > 0) {
+    const sorted = dog.pesoHistorial.slice().sort((a,b) => b.fecha.localeCompare(a.fecha));
+    dog.peso = sorted[0].peso;
+  }
+  save();
+  renderPesoTab(dog);
+}
+
+// ══════════════════════════════════
 //  COMPARTIR
 // ══════════════════════════════════
 function generarTextoPlan(dog) {
@@ -1614,6 +1848,9 @@ document.getElementById('photo-input').addEventListener('change', function() {
   };
   reader.readAsDataURL(file);
 });
+
+// Peso
+document.getElementById('btn-registrar-peso').addEventListener('click', registrarPeso);
 
 // Prep period buttons
 document.getElementById('prep-period-btns').addEventListener('click', e => {
