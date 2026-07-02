@@ -789,6 +789,31 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 .tag.red { background: #fdecea; color: var(--danger); }
 
+/* ── PIN ── */
+.pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.15s;
+}
+.pin-dot.filled { background: var(--gold); }
+.pin-dot.error  { background: var(--danger); }
+
+.pin-key {
+  padding: 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-appearance: none;
+  transition: background 0.1s, transform 0.1s;
+}
+.pin-key:active { background: var(--gold-lt); transform: scale(0.94); }
+
 /* ── TOAST ── */
 .toast {
   position: fixed;
@@ -843,8 +868,181 @@ input[type="number"] { -moz-appearance: textfield; }
   <div class="home-body">
     <div class="section-eyebrow" style="margin-top:24px;">Mis perros</div>
     <div id="dogs-list"></div>
+
+    <!-- Acceso modo profesional -->
+    <div style="margin-top:32px; padding-bottom:8px;">
+      <button id="btn-modo-nut"
+        style="width:100%; padding:13px; background:transparent;
+               color:var(--muted); border:1.5px solid var(--border);
+               border-radius:12px; font-family:'DM Sans',sans-serif;
+               font-size:0.85rem; font-weight:500; cursor:pointer;
+               -webkit-appearance:none; display:flex; align-items:center;
+               justify-content:center; gap:8px;">
+        🩺 Modo nutricionista
+      </button>
+    </div>
+
+    <!-- Modal PIN -->
+    <div id="pin-modal" style="display:none; position:fixed; inset:0; z-index:200;
+         background:rgba(26,20,16,0.7); backdrop-filter:blur(6px);
+         -webkit-backdrop-filter:blur(6px);
+         align-items:center; justify-content:center; padding:24px;">
+      <div style="background:var(--card); border-radius:24px; padding:32px 24px;
+                  width:100%; max-width:320px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="font-size:2rem; margin-bottom:12px;">🔐</div>
+        <div id="pin-title" style="font-family:'Fraunces',serif; font-size:1.2rem;
+             font-weight:600; color:var(--ink); margin-bottom:6px;">Acceso profesional</div>
+        <div id="pin-subtitle" style="font-size:0.82rem; color:var(--muted);
+             margin-bottom:24px; line-height:1.5;">Ingresa el PIN de 4 dígitos</div>
+
+        <!-- Puntos visuales -->
+        <div style="display:flex; justify-content:center; gap:14px; margin-bottom:24px;">
+          <div class="pin-dot" id="pd-0"></div>
+          <div class="pin-dot" id="pd-1"></div>
+          <div class="pin-dot" id="pd-2"></div>
+          <div class="pin-dot" id="pd-3"></div>
+        </div>
+
+        <!-- Teclado numérico -->
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:240px; margin:0 auto;">
+          <button class="pin-key" data-n="1">1</button>
+          <button class="pin-key" data-n="2">2</button>
+          <button class="pin-key" data-n="3">3</button>
+          <button class="pin-key" data-n="4">4</button>
+          <button class="pin-key" data-n="5">5</button>
+          <button class="pin-key" data-n="6">6</button>
+          <button class="pin-key" data-n="7">7</button>
+          <button class="pin-key" data-n="8">8</button>
+          <button class="pin-key" data-n="9">9</button>
+          <button class="pin-key" data-n="cancel" style="color:var(--muted);font-size:0.8rem;">Cancelar</button>
+          <button class="pin-key" data-n="0">0</button>
+          <button class="pin-key" data-n="del" style="font-size:1.1rem;">⌫</button>
+        </div>
+      </div>
+    </div>
   </div>
   <button class="fab" id="btn-new-dog">+</button>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN: MODO NUTRICIONISTA
+════════════════════════════════ -->
+<div id="screen-nut" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" id="back-from-nut">← Inicio</button>
+    <div class="topbar-title">Modo Profesional</div>
+    <div style="width:80px"></div>
+  </div>
+
+  <div style="padding:0 20px 100px;">
+
+    <!-- Paciente -->
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">🐶 Paciente</div>
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Nombre</label>
+          <input type="text" id="nut-nombre" placeholder="Max">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Raza</label>
+          <input type="text" id="nut-raza" placeholder="Labrador">
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:12px;">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Peso actual (kg)</label>
+          <input type="number" id="nut-peso" placeholder="0.0" step="0.1">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Peso ideal (kg)</label>
+          <input type="number" id="nut-peso-ideal" placeholder="0.0" step="0.1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan -->
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">🍗 Plan nutricional</div>
+      <div id="nut-ingredientes-list"></div>
+      <button class="btn-add" id="nut-btn-add-ing">+ Añadir ingrediente</button>
+
+      <div style="margin-top:16px;" id="nut-pct-wrap" style="display:none;">
+        <div class="section-eyebrow" style="margin-bottom:10px;">Distribución</div>
+        <div id="nut-porcentajes"></div>
+      </div>
+    </div>
+
+    <!-- Suplementos y obs -->
+    <div class="card" style="margin:0 0 14px;">
+      <div class="card-title">💊 Suplementos y observaciones</div>
+      <textarea id="nut-suplementos" placeholder="Omega 3 — 1 cápsula con el almuerzo…" style="margin-bottom:10px;"></textarea>
+      <textarea id="nut-obs" placeholder="Observaciones para el dueño…"></textarea>
+    </div>
+
+    <!-- Comidas y agua -->
+    <div class="card" style="margin:0 0 20px;">
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Comidas por día</label>
+          <input type="number" id="nut-comidas" value="2" min="1" max="5">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Agua diaria (ml)</label>
+          <input type="number" id="nut-agua" placeholder="400">
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón generar -->
+    <button class="btn-save" id="nut-btn-generar">Generar plan para compartir</button>
+
+    <!-- Resultado -->
+    <div id="nut-resultado" style="display:none; margin-top:16px;">
+      <div class="card" style="margin:0 0 12px;">
+        <div class="card-title">✅ Plan listo</div>
+        <div style="font-size:0.82rem; color:var(--muted); line-height:1.6; margin-bottom:14px;">
+          Comparte este plan por WhatsApp. El dueño puede cargarlo automáticamente en su app con un toque.
+        </div>
+        <button class="btn-save" id="nut-btn-whatsapp" style="background:var(--green);">
+          📱 Enviar por WhatsApp
+        </button>
+        <button class="btn-share" id="nut-btn-compartir" style="margin-top:10px;">
+          ↗ Otras opciones
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN: RECIBIR PLAN
+════════════════════════════════ -->
+<div id="screen-recibir" class="screen">
+  <div style="min-height:100vh; display:flex; flex-direction:column;
+              align-items:center; justify-content:center; padding:32px 24px; text-align:center;">
+    <div style="font-size:3rem; margin-bottom:20px;">🐾</div>
+    <div style="font-family:'Fraunces',serif; font-size:1.6rem; font-weight:600;
+                color:var(--ink); margin-bottom:8px;" id="recibir-title">
+      Plan recibido
+    </div>
+    <div style="font-size:0.9rem; color:var(--muted); margin-bottom:28px;
+                line-height:1.6;" id="recibir-desc">
+      Tu nutricionista te envió el plan nutricional
+    </div>
+
+    <div class="card" style="margin:0 0 20px; text-align:left; width:100%;">
+      <div id="recibir-preview"></div>
+    </div>
+
+    <button class="btn-save" id="recibir-btn-cargar" style="width:100%;">
+      Cargar en mi app
+    </button>
+    <button class="btn-share" id="recibir-btn-cancelar" style="width:100%; margin-top:10px;">
+      Cancelar
+    </button>
+  </div>
 </div>
 
 <!-- ════════════════════════════════
@@ -2221,6 +2419,357 @@ document.getElementById('rec-hora-1').addEventListener('change', guardarRecordat
 document.getElementById('rec-hora-2').addEventListener('change', guardarRecordatorios);
 
 // ══════════════════════════════════
+//  PIN
+// ══════════════════════════════════
+const PIN_KEY     = 'cuenco_pin';
+let pinBuffer     = '';
+let pinModo       = ''; // 'verificar' | 'crear' | 'confirmar'
+let pinTemp       = ''; // PIN temporal al crear
+
+function tienePIN() {
+  return !!localStorage.getItem(PIN_KEY);
+}
+
+function abrirPIN(modo) {
+  pinBuffer = '';
+  pinModo   = modo;
+  pinTemp   = '';
+  actualizarDots();
+  const modal = document.getElementById('pin-modal');
+  const title = document.getElementById('pin-title');
+  const sub   = document.getElementById('pin-subtitle');
+  if (modo === 'crear') {
+    title.textContent = 'Crea tu PIN';
+    sub.textContent   = 'Elige un PIN de 4 dígitos para proteger el modo profesional';
+  } else if (modo === 'confirmar') {
+    title.textContent = 'Confirma tu PIN';
+    sub.textContent   = 'Ingresa el PIN nuevamente para confirmar';
+  } else {
+    title.textContent = 'Acceso profesional';
+    sub.textContent   = 'Ingresa tu PIN de 4 dígitos';
+  }
+  modal.style.display = 'flex';
+}
+
+function cerrarPIN() {
+  document.getElementById('pin-modal').style.display = 'none';
+  pinBuffer = '';
+}
+
+function actualizarDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd-' + i);
+    dot.classList.remove('filled', 'error');
+    if (i < pinBuffer.length) dot.classList.add('filled');
+  }
+}
+
+function pinError() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd-' + i);
+    dot.classList.remove('filled');
+    dot.classList.add('error');
+  }
+  setTimeout(() => {
+    pinBuffer = '';
+    actualizarDots();
+  }, 600);
+}
+
+function procesarPIN() {
+  if (pinModo === 'verificar') {
+    const guardado = localStorage.getItem(PIN_KEY);
+    if (pinBuffer === guardado) {
+      cerrarPIN();
+      abrirModoNut();
+    } else {
+      pinError();
+      showToast('PIN incorrecto');
+    }
+  } else if (pinModo === 'crear') {
+    pinTemp   = pinBuffer;
+    pinBuffer = '';
+    abrirPIN('confirmar');
+  } else if (pinModo === 'confirmar') {
+    if (pinBuffer === pinTemp) {
+      localStorage.setItem(PIN_KEY, pinBuffer);
+      cerrarPIN();
+      showToast('PIN creado ✓');
+      abrirModoNut();
+    } else {
+      pinError();
+      showToast('Los PINes no coinciden');
+      setTimeout(() => abrirPIN('crear'), 700);
+    }
+  }
+}
+
+// Teclado PIN
+document.getElementById('pin-modal').addEventListener('click', e => {
+  const key = e.target.closest('.pin-key');
+  if (!key) return;
+  const n = key.dataset.n;
+  if (n === 'cancel') { cerrarPIN(); return; }
+  if (n === 'del')    { pinBuffer = pinBuffer.slice(0,-1); actualizarDots(); return; }
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += n;
+  actualizarDots();
+  if (pinBuffer.length === 4) setTimeout(procesarPIN, 200);
+});
+
+// ══════════════════════════════════
+//  MODO NUTRICIONISTA
+// ══════════════════════════════════
+function abrirModoNut() {
+  // Limpiar formulario
+  ['nut-nombre','nut-raza','nut-peso','nut-peso-ideal','nut-suplementos','nut-obs'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('nut-comidas').value = 2;
+  document.getElementById('nut-agua').value = '';
+  document.getElementById('nut-ingredientes-list').innerHTML = '';
+  document.getElementById('nut-resultado').style.display = 'none';
+  nutAgregarIngrediente('', '');
+  nutAgregarIngrediente('', '');
+  nutAgregarIngrediente('', '');
+  showScreen('nut');
+}
+
+function nutAgregarIngrediente(nombre, gramos) {
+  const row = document.createElement('div');
+  row.className = 'ingredient-row-plan';
+
+  const inNombre = document.createElement('input');
+  inNombre.type = 'text'; inNombre.placeholder = 'Ingrediente';
+  inNombre.value = nombre || '';
+  inNombre.addEventListener('input', nutUpdatePct);
+
+  const inGramos = document.createElement('input');
+  inGramos.type = 'number'; inGramos.placeholder = 'g'; inGramos.min = '0';
+  inGramos.value = gramos !== undefined ? String(gramos) : '';
+  inGramos.addEventListener('input', nutUpdatePct);
+
+  const btnDel = document.createElement('button');
+  btnDel.innerHTML = '🗑';
+  btnDel.style.cssText = 'background:none;border:none;cursor:pointer;color:#c0a090;font-size:1.1rem;padding:6px;border-radius:8px;-webkit-appearance:none;';
+  btnDel.addEventListener('click', () => { row.remove(); nutUpdatePct(); });
+
+  row.appendChild(inNombre);
+  row.appendChild(inGramos);
+  row.appendChild(btnDel);
+  document.getElementById('nut-ingredientes-list').appendChild(row);
+}
+
+function nutGetIngredientes() {
+  const rows = document.querySelectorAll('#nut-ingredientes-list .ingredient-row-plan');
+  const result = [];
+  rows.forEach(row => {
+    const nombre  = row.querySelectorAll('input')[0].value.trim();
+    const gramos  = parseFloat(row.querySelectorAll('input')[1].value) || 0;
+    if (gramos > 0) result.push({ nombre: nombre || 'Sin nombre', gramos });
+  });
+  return result;
+}
+
+function nutUpdatePct() {
+  const ings  = nutGetIngredientes();
+  const total = ings.reduce((s,i) => s + i.gramos, 0);
+  const wrap  = document.getElementById('nut-pct-wrap');
+  const cont  = document.getElementById('nut-porcentajes');
+  if (total === 0 || ings.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  cont.innerHTML = ings.map(ing => {
+    const pct = (ing.gramos / total * 100).toFixed(1);
+    return `<div class="pct-row">
+      <span class="pct-name">${ing.nombre}</span>
+      <div class="pct-bar-wrap"><div class="pct-bar" style="width:${pct}%"></div></div>
+      <span class="pct-label">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+function nutGenerarPayload() {
+  const ings = nutGetIngredientes();
+  if (ings.length === 0) { showToast('Agrega al menos un ingrediente'); return null; }
+  const nombre = document.getElementById('nut-nombre').value.trim();
+  if (!nombre) { showToast('Escribe el nombre del paciente'); return null; }
+
+  const payload = {
+    v: 1,
+    nombre,
+    raza:        document.getElementById('nut-raza').value.trim(),
+    peso:        document.getElementById('nut-peso').value,
+    pesoIdeal:   document.getElementById('nut-peso-ideal').value,
+    plan: {
+      ingredientes: ings,
+      suplementos:  document.getElementById('nut-suplementos').value.trim(),
+      obs:          document.getElementById('nut-obs').value.trim(),
+      comidas:      parseInt(document.getElementById('nut-comidas').value) || 2,
+      agua:         document.getElementById('nut-agua').value,
+    }
+  };
+  return payload;
+}
+
+function nutGenerarLink(payload) {
+  const json    = JSON.stringify(payload);
+  const b64     = btoa(unescape(encodeURIComponent(json)));
+  const baseUrl = window.location.href.split('?')[0];
+  return `${baseUrl}?plan=${b64}`;
+}
+
+function nutGenerarTexto(payload) {
+  const p    = payload.plan;
+  const ings = p.ingredientes || [];
+  const total = ings.reduce((s,i) => s + i.gramos, 0);
+  const hoy  = new Date().toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+  let txt = `🐾 *Plan nutricional de ${payload.nombre}*
+`;
+  txt += `📅 ${hoy}
+
+`;
+
+  if (payload.peso) txt += `Peso actual: ${payload.peso} kg
+`;
+  if (payload.pesoIdeal) txt += `Peso ideal: ${payload.pesoIdeal} kg
+`;
+
+  txt += `
+🍗 *Plan diario (${total} g)*
+`;
+  ings.forEach(ing => {
+    const pct = (ing.gramos / total * 100).toFixed(1);
+    txt += `• ${ing.nombre}: ${ing.gramos} g (${pct}%)
+`;
+  });
+
+  if (p.comidas) txt += `
+Comidas por día: ${p.comidas}
+`;
+  if (p.agua)    txt += `Agua diaria: ${p.agua} ml
+`;
+  if (p.suplementos) txt += `
+💊 ${p.suplementos}
+`;
+  if (p.obs)         txt += `
+📋 ${p.obs}
+`;
+
+  return txt;
+}
+
+function nutMostrarPreview(payload) {
+  const p    = payload.plan;
+  const ings = p.ingredientes || [];
+  const total = ings.reduce((s,i) => s + i.gramos, 0);
+  let html = `<div style="font-family:'Fraunces',serif;font-size:1rem;font-weight:600;
+                           color:var(--ink);margin-bottom:12px;">${payload.nombre}</div>`;
+  if (payload.raza || payload.peso) {
+    html += `<div style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">
+      ${[payload.raza, payload.peso ? payload.peso+' kg' : ''].filter(Boolean).join(' · ')}
+    </div>`;
+  }
+  html += ings.map(ing => {
+    const pct = (ing.gramos / total * 100).toFixed(1);
+    return `<div class="result-row">
+      <span class="r-name">${ing.nombre}</span>
+      <span class="r-val">${ing.gramos} g <span style="font-size:0.75rem;color:var(--muted);">${pct}%</span></span>
+    </div>`;
+  }).join('');
+  html += `<div class="result-row total" style="margin-top:8px;">
+    <span class="r-name">TOTAL DIARIO</span>
+    <span class="r-val">${total} g</span>
+  </div>`;
+  if (p.suplementos) {
+    html += `<div style="margin-top:12px;font-size:0.8rem;color:var(--muted);">💊 ${p.suplementos}</div>`;
+  }
+  if (p.obs) {
+    html += `<div style="margin-top:6px;font-size:0.8rem;color:var(--muted);">📋 ${p.obs}</div>`;
+  }
+  document.getElementById('nut-resultado').style.display = 'block';
+  // Guardar payload para botones
+  window._nutPayload = payload;
+  setTimeout(() => document.getElementById('nut-resultado').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+// ── Recibir plan desde URL ──
+function verificarPlanEnURL() {
+  const params = new URLSearchParams(window.location.search);
+  const planB64 = params.get('plan');
+  if (!planB64) return;
+
+  try {
+    const json    = decodeURIComponent(escape(atob(planB64)));
+    const payload = JSON.parse(json);
+    if (!payload || !payload.nombre) return;
+
+    // Mostrar pantalla de recepción
+    const p    = payload.plan || {};
+    const ings = p.ingredientes || [];
+    const total = ings.reduce((s,i) => s + i.gramos, 0);
+
+    document.getElementById('recibir-title').textContent = `Plan de ${payload.nombre}`;
+    document.getElementById('recibir-desc').textContent =
+      `Tu nutricionista te envió el plan nutricional. Total diario: ${total} g`;
+
+    let html = ings.map(ing => {
+      const pct = (ing.gramos / total * 100).toFixed(1);
+      return `<div class="result-row">
+        <span class="r-name">${ing.nombre}</span>
+        <span class="r-val">${ing.gramos} g <span style="font-size:0.75rem;color:var(--muted);">${pct}%</span></span>
+      </div>`;
+    }).join('');
+    if (p.suplementos) html += `<div style="margin-top:10px;font-size:0.82rem;color:var(--muted);">💊 ${p.suplementos}</div>`;
+    if (p.obs)         html += `<div style="margin-top:6px;font-size:0.82rem;color:var(--muted);">📋 ${p.obs}</div>`;
+    document.getElementById('recibir-preview').innerHTML = html;
+
+    window._planRecibido = payload;
+    showScreen('recibir');
+
+    // Limpiar URL sin recargar
+    window.history.replaceState({}, '', window.location.pathname);
+  } catch(e) {
+    console.error('Error al leer plan:', e);
+  }
+}
+
+function cargarPlanRecibido() {
+  const payload = window._planRecibido;
+  if (!payload) return;
+
+  // Buscar si ya existe el perro por nombre
+  let dog = dogs.find(d => d.nombre.toLowerCase() === payload.nombre.toLowerCase());
+
+  if (dog) {
+    // Actualizar plan existente
+    dog.plan = payload.plan;
+    if (payload.peso) dog.peso = payload.peso;
+    if (payload.pesoIdeal) dog.pesoIdeal = payload.pesoIdeal;
+    save();
+    showToast(`Plan de ${dog.nombre} actualizado ✓`);
+    renderHome();
+    setTimeout(() => openDog(dog.id), 700);
+  } else {
+    // Crear nuevo perro
+    const nuevoDog = {
+      id:       uid(),
+      nombre:   payload.nombre,
+      raza:     payload.raza || '',
+      peso:     payload.peso || '',
+      pesoIdeal: payload.pesoIdeal || '',
+      plan:     payload.plan,
+      especie:  'Perro',
+    };
+    dogs.push(nuevoDog);
+    save();
+    showToast(`${nuevoDog.nombre} agregado ✓`);
+    renderHome();
+    setTimeout(() => openDog(nuevoDog.id), 700);
+  }
+}
+
+// ══════════════════════════════════
 //  PWA / INSTALACIÓN
 // ══════════════════════════════════
 function mostrarBannerInstalar() {
@@ -2240,6 +2789,47 @@ if (window.navigator.standalone) {
   document.documentElement.style.setProperty('--status-bar', '44px');
 }
 
+// Modo nutricionista — pedir PIN
+document.getElementById('btn-modo-nut').addEventListener('click', () => {
+  if (tienePIN()) {
+    abrirPIN('verificar');
+  } else {
+    abrirPIN('crear');
+  }
+});
+document.getElementById('back-from-nut').addEventListener('click', () => showScreen('home'));
+document.getElementById('nut-btn-add-ing').addEventListener('click', () => nutAgregarIngrediente('', ''));
+
+document.getElementById('nut-btn-generar').addEventListener('click', () => {
+  const payload = nutGenerarPayload();
+  if (!payload) return;
+  nutMostrarPreview(payload);
+});
+
+document.getElementById('nut-btn-whatsapp').addEventListener('click', () => {
+  const payload = window._nutPayload;
+  if (!payload) return;
+  const link  = nutGenerarLink(payload);
+  const texto = nutGenerarTexto(payload);
+  const msg   = encodeURIComponent(texto + '\n\n🔗 Carga tu plan aquí:\n' + link);
+  window.open('https://wa.me/?text=' + msg, '_blank');
+});
+
+document.getElementById('nut-btn-compartir').addEventListener('click', () => {
+  const payload = window._nutPayload;
+  if (!payload) return;
+  const link  = nutGenerarLink(payload);
+  const texto = nutGenerarTexto(payload) + '\n\n🔗 ' + link;
+  compartir(texto);
+});
+
+// Recibir plan
+document.getElementById('recibir-btn-cargar').addEventListener('click', () => {
+  cargarPlanRecibido();
+  showScreen('home');
+});
+document.getElementById('recibir-btn-cancelar').addEventListener('click', () => showScreen('home'));
+
 // ══════════════════════════════════
 //  INIT
 // ══════════════════════════════════
@@ -2248,6 +2838,7 @@ renderHome();
 cargarRecordatorios();
 mostrarAvisoiOS();
 mostrarBannerInstalar();
+verificarPlanEnURL();
 </script>
 </body>
 </html>
