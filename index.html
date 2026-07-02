@@ -2481,7 +2481,7 @@ function procesarPIN() {
     const guardado = localStorage.getItem(PIN_KEY);
     if (pinBuffer === guardado) {
       cerrarPIN();
-      abrirModoNut();
+      setTimeout(() => abrirModoNut(), 100);
     } else {
       pinError();
       showToast('PIN incorrecto');
@@ -2489,17 +2489,28 @@ function procesarPIN() {
   } else if (pinModo === 'crear') {
     pinTemp   = pinBuffer;
     pinBuffer = '';
-    abrirPIN('confirmar');
+    // Actualizar UI manualmente sin llamar abrirPIN para no resetear pinTemp
+    actualizarDots();
+    pinModo = 'confirmar';
+    document.getElementById('pin-title').textContent = 'Confirma tu PIN';
+    document.getElementById('pin-subtitle').textContent = 'Ingresa el PIN nuevamente para confirmar';
   } else if (pinModo === 'confirmar') {
     if (pinBuffer === pinTemp) {
       localStorage.setItem(PIN_KEY, pinBuffer);
       cerrarPIN();
       showToast('PIN creado ✓');
-      abrirModoNut();
+      setTimeout(() => abrirModoNut(), 300);
     } else {
       pinError();
       showToast('Los PINes no coinciden');
-      setTimeout(() => abrirPIN('crear'), 700);
+      setTimeout(() => {
+        pinTemp   = '';
+        pinBuffer = '';
+        pinModo   = 'crear';
+        actualizarDots();
+        document.getElementById('pin-title').textContent = 'Crea tu PIN';
+        document.getElementById('pin-subtitle').textContent = 'Elige un PIN de 4 dígitos para proteger el modo profesional';
+      }, 700);
     }
   }
 }
