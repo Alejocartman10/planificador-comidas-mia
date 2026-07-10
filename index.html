@@ -1797,10 +1797,12 @@ function calcularPrep() {
   let htmlB = ings.map(ing => {
     const gBolsa = ing.gramos / comidas;
     const cocido = pesoCocinado(gBolsa, ing.coccion || 'crudo');
-    const extra  = cocido !== null ? ` <span style="font-size:0.72rem;color:rgba(255,255,255,0.6);">→ ${cocido.toFixed(0)}g cocido</span>` : '';
-    return `<div class="result-row">
+    const extra  = cocido !== null
+      ? `<span style="font-size:0.72rem;color:var(--muted);margin-left:4px;">→ ${cocido.toFixed(0)}g cocido</span>`
+      : '';
+    return `<div class="result-row" style="flex-wrap:wrap; gap:4px;">
       <span class="r-name">${ing.nombre}</span>
-      <span class="r-val">${gBolsa.toFixed(1)} g${extra}</span>
+      <span class="r-val" style="display:flex;align-items:center;gap:4px;">${gBolsa.toFixed(1)} g ${extra}</span>
     </div>`;
   }).join('');
   htmlB += resultRow('TOTAL BOLSA', gPorBolsa.toFixed(1) + ' g', true);
