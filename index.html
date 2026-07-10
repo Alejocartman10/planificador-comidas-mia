@@ -1682,6 +1682,33 @@ function addIngredienteRow(nombre, gramos, coccion) {
   inGramos.value = gramos !== undefined ? String(gramos) : '';
   inGramos.addEventListener('input', updatePorcentajes);
 
+  // Detectar tipo automáticamente si no viene definido
+  if (!coccion) {
+    const n = (nombre || '').toLowerCase();
+    if (n.includes('huevo')) coccion = 'cocido';
+    else if (n.includes('fruta') || n.includes('manzana') || n.includes('pera') ||
+             n.includes('papaya') || n.includes('ar\u00e1ndano') || n.includes('arandano') ||
+             n.includes('mango') || n.includes('banana') || n.includes('fresa') ||
+             n.includes('mel\u00f3n') || n.includes('sand\u00eda')) coccion = 'fruta';
+    else if (n.includes('zanahoria') || n.includes('apio') || n.includes('espinaca') ||
+             n.includes('brocoli') || n.includes('br\u00f3coli') || n.includes('habichuela') ||
+             n.includes('batata') || n.includes('calabaza') || n.includes('zapallo')) coccion = 'vegetal';
+    else coccion = 'crudo';
+  }
+
+  if (!coccion) {
+    const n = (nombre || '').toLowerCase();
+    if (n.includes('huevo')) coccion = 'cocido';
+    else if (n.includes('fruta') || n.includes('manzana') || n.includes('pera') ||
+             n.includes('papaya') || n.includes('ar\u00e1ndano') || n.includes('arandano') ||
+             n.includes('mango') || n.includes('banana') || n.includes('fresa') ||
+             n.includes('mel\u00f3n') || n.includes('sand\u00eda')) coccion = 'fruta';
+    else if (n.includes('zanahoria') || n.includes('apio') || n.includes('espinaca') ||
+             n.includes('brocoli') || n.includes('br\u00f3coli') || n.includes('habichuela') ||
+             n.includes('batata') || n.includes('calabaza') || n.includes('zapallo')) coccion = 'vegetal';
+    else coccion = 'crudo';
+  }
+
   const selCoccion = document.createElement('select');
   selCoccion.className = 'ing-coccion';
   selCoccion.style.cssText = 'font-size:0.78rem; padding:8px 6px; border-radius:10px; width:100%;';
