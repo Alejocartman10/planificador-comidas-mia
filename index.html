@@ -1306,7 +1306,10 @@ input[type="number"] { -moz-appearance: textfield; }
         <div class="summary-grid" id="prep-summary"></div>
         <div class="cook-note">
           <span class="note-icon">🔥</span>
-          <span class="note-text">Pesos en <strong>crudo</strong>. Si cocinas los alimentos, considera que reducen aprox. un <strong>20%</strong> de su peso.</span>
+          <span class="note-text">
+            Los pesos marcados como <strong>🥩 Crudo</strong> y <strong>🥕 Vegetal</strong> se pesan antes de cocinar — el peso cocido se muestra automáticamente (×0.75).
+            El <strong>🍳 Huevo</strong> y la <strong>🍎 Fruta</strong> se pesan tal como se sirven.
+          </span>
         </div>
       </div>
 
@@ -1642,13 +1645,32 @@ function renderPlanTab(dog) {
 
   const list = document.getElementById('plan-ingredientes-list');
   list.innerHTML = '';
-  (plan.ingredientes || []).forEach(ing => addIngredienteRow(ing.nombre, ing.gramos));
+  (plan.ingredientes || []).forEach(ing => addIngredienteRow(ing.nombre, ing.gramos, ing.coccion || 'crudo'));
   updatePorcentajes();
 }
 
-function addIngredienteRow(nombre, gramos) {
+// Tipos de cocción
+const COCCION_TIPOS = [
+  { val: 'crudo',    label: '🥩 Crudo',    factor: 0.75 },
+  { val: 'cocido',   label: '🍳 Cocido',   factor: 1.0  },
+  { val: 'vegetal',  label: '🥕 Vegetal',  factor: 0.75 },
+  { val: 'fruta',    label: '🍎 Fruta',    factor: 1.0  },
+];
+
+function factorCoccion(tipo) {
+  const t = COCCION_TIPOS.find(c => c.val === tipo);
+  return t ? t.factor : 1.0;
+}
+
+function pesoCocinado(gramos, tipo) {
+  if (tipo === 'cocido' || tipo === 'fruta') return null; // ya es el peso final
+  return Math.round(gramos * factorCoccion(tipo));
+}
+
+function addIngredienteRow(nombre, gramos, coccion) {
   const row = document.createElement('div');
   row.className = 'ingredient-row-plan';
+  row.style.cssText = 'display:grid; grid-template-columns:1fr 70px 90px 32px; gap:6px; align-items:center; margin-bottom:10px;';
 
   const inNombre = document.createElement('input');
   inNombre.type = 'text'; inNombre.placeholder = 'Ingrediente';
@@ -1660,6 +1682,18 @@ function addIngredienteRow(nombre, gramos) {
   inGramos.value = gramos !== undefined ? String(gramos) : '';
   inGramos.addEventListener('input', updatePorcentajes);
 
+  const selCoccion = document.createElement('select');
+  selCoccion.className = 'ing-coccion';
+  selCoccion.style.cssText = 'font-size:0.78rem; padding:8px 6px; border-radius:10px; width:100%;';
+  COCCION_TIPOS.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.val;
+    opt.textContent = t.label;
+    if (coccion === t.val) opt.selected = true;
+    selCoccion.appendChild(opt);
+  });
+  selCoccion.addEventListener('change', updatePorcentajes);
+
   const btnDel = document.createElement('button');
   btnDel.className = 'btn-trash';
   btnDel.innerHTML = '🗑';
@@ -1668,17 +1702,20 @@ function addIngredienteRow(nombre, gramos) {
 
   row.appendChild(inNombre);
   row.appendChild(inGramos);
+  row.appendChild(selCoccion);
   row.appendChild(btnDel);
   document.getElementById('plan-ingredientes-list').appendChild(row);
 }
 
 function getIngredientesFromDOM() {
-  const rows = document.querySelectorAll('.ingredient-row-plan');
+  const rows = document.querySelectorAll('#plan-ingredientes-list .ingredient-row-plan');
   const result = [];
   rows.forEach(row => {
-    const nombre = row.querySelectorAll('input')[0].value.trim();
-    const gramos = parseFloat(row.querySelectorAll('input')[1].value) || 0;
-    if (gramos > 0) result.push({ nombre: nombre || 'Sin nombre', gramos });
+    const inputs  = row.querySelectorAll('input');
+    const nombre  = inputs[0].value.trim();
+    const gramos  = parseFloat(inputs[1].value) || 0;
+    const coccion = row.querySelector('.ing-coccion') ? row.querySelector('.ing-coccion').value : 'crudo';
+    if (gramos > 0) result.push({ nombre: nombre || 'Sin nombre', gramos, coccion });
   });
   return result;
 }
@@ -1745,15 +1782,26 @@ function calcularPrep() {
 
   // Compras
   let htmlC = ings.map(ing => {
-    const gTotal = ing.gramos * prepDias;
-    return resultRow(ing.nombre, fmt(gTotal));
+    const gTotal   = ing.gramos * prepDias;
+    const cocido   = pesoCocinado(gTotal, ing.coccion || 'crudo');
+    const extra    = cocido !== null ? ` <span style="font-size:0.72rem;color:var(--muted);">→ ${fmt(cocido)} cocido</span>` : '';
+    return `<div class="result-row">
+      <span class="r-name">${ing.nombre}</span>
+      <span class="r-val">${fmt(gTotal)}${extra}</span>
+    </div>`;
   }).join('');
-  htmlC += resultRow('TOTAL', fmt(totalGeneral), true);
+  htmlC += resultRow('TOTAL CRUDO', fmt(totalGeneral), true);
   document.getElementById('prep-compras').innerHTML = htmlC;
 
   // Por bolsa
   let htmlB = ings.map(ing => {
-    return resultRow(ing.nombre, (ing.gramos / comidas).toFixed(1) + ' g');
+    const gBolsa = ing.gramos / comidas;
+    const cocido = pesoCocinado(gBolsa, ing.coccion || 'crudo');
+    const extra  = cocido !== null ? ` <span style="font-size:0.72rem;color:rgba(255,255,255,0.6);">→ ${cocido.toFixed(0)}g cocido</span>` : '';
+    return `<div class="result-row">
+      <span class="r-name">${ing.nombre}</span>
+      <span class="r-val">${gBolsa.toFixed(1)} g${extra}</span>
+    </div>`;
   }).join('');
   htmlB += resultRow('TOTAL BOLSA', gPorBolsa.toFixed(1) + ' g', true);
   document.getElementById('prep-bolsa').innerHTML = htmlB;
@@ -2546,9 +2594,10 @@ function abrirModoNut() {
   showScreen('nut');
 }
 
-function nutAgregarIngrediente(nombre, gramos) {
+function nutAgregarIngrediente(nombre, gramos, coccion) {
   const row = document.createElement('div');
   row.className = 'ingredient-row-plan';
+  row.style.cssText = 'display:grid; grid-template-columns:1fr 70px 90px 32px; gap:6px; align-items:center; margin-bottom:10px;';
 
   const inNombre = document.createElement('input');
   inNombre.type = 'text'; inNombre.placeholder = 'Ingrediente';
@@ -2560,6 +2609,17 @@ function nutAgregarIngrediente(nombre, gramos) {
   inGramos.value = gramos !== undefined ? String(gramos) : '';
   inGramos.addEventListener('input', nutUpdatePct);
 
+  const selCoccion = document.createElement('select');
+  selCoccion.className = 'ing-coccion';
+  selCoccion.style.cssText = 'font-size:0.78rem; padding:8px 6px; border-radius:10px; width:100%;';
+  COCCION_TIPOS.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.val;
+    opt.textContent = t.label;
+    if (coccion === t.val) opt.selected = true;
+    selCoccion.appendChild(opt);
+  });
+
   const btnDel = document.createElement('button');
   btnDel.innerHTML = '🗑';
   btnDel.style.cssText = 'background:none;border:none;cursor:pointer;color:#c0a090;font-size:1.1rem;padding:6px;border-radius:8px;-webkit-appearance:none;';
@@ -2567,6 +2627,7 @@ function nutAgregarIngrediente(nombre, gramos) {
 
   row.appendChild(inNombre);
   row.appendChild(inGramos);
+  row.appendChild(selCoccion);
   row.appendChild(btnDel);
   document.getElementById('nut-ingredientes-list').appendChild(row);
 }
@@ -2575,9 +2636,11 @@ function nutGetIngredientes() {
   const rows = document.querySelectorAll('#nut-ingredientes-list .ingredient-row-plan');
   const result = [];
   rows.forEach(row => {
-    const nombre  = row.querySelectorAll('input')[0].value.trim();
-    const gramos  = parseFloat(row.querySelectorAll('input')[1].value) || 0;
-    if (gramos > 0) result.push({ nombre: nombre || 'Sin nombre', gramos });
+    const inputs  = row.querySelectorAll('input');
+    const nombre  = inputs[0].value.trim();
+    const gramos  = parseFloat(inputs[1].value) || 0;
+    const coccion = row.querySelector('.ing-coccion') ? row.querySelector('.ing-coccion').value : 'crudo';
+    if (gramos > 0) result.push({ nombre: nombre || 'Sin nombre', gramos, coccion });
   });
   return result;
 }
