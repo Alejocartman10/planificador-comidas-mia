@@ -1307,8 +1307,11 @@ input[type="number"] { -moz-appearance: textfield; }
         <div class="cook-note">
           <span class="note-icon">🔥</span>
           <span class="note-text">
-            Los pesos marcados como <strong>🥩 Crudo</strong> y <strong>🥕 Vegetal</strong> se pesan antes de cocinar — el peso cocido se muestra automáticamente (×0.75).
-            El <strong>🍳 Huevo</strong> y la <strong>🍎 Fruta</strong> se pesan tal como se sirven.
+            <strong>🥩 Proteína</strong>: pesar <strong>cruda</strong> con el gramaje del plan.
+            <strong>🍳 Huevo</strong>: pesar cocido.
+            <strong>🥬 Blanqueado</strong> (3-4 min): el peso casi no cambia, pesar tal cual.
+            <strong>🥕 Veg. cocido</strong>: pesar ya cocido — compra más crudo (la app indica cuánto).
+            <strong>🍎 Fruta</strong>: pesar normal.
           </span>
         </div>
       </div>
@@ -1651,10 +1654,11 @@ function renderPlanTab(dog) {
 
 // Tipos de cocción
 const COCCION_TIPOS = [
-  { val: 'crudo',    label: '🥩 Crudo',    factor: 0.75 },
-  { val: 'cocido',   label: '🍳 Cocido',   factor: 1.0  },
-  { val: 'vegetal',  label: '🥕 Vegetal',  factor: 0.75 },
-  { val: 'fruta',    label: '🍎 Fruta',    factor: 1.0  },
+  { val: 'crudo',      label: '🥩 Crudo',       factor: 0.75 },
+  { val: 'cocido',     label: '🍳 Cocido',      factor: 1.0  },
+  { val: 'blanqueado', label: '🥬 Blanqueado',  factor: 1.0  },
+  { val: 'vegetal',    label: '🥕 Veg. cocido', factor: 0.75 },
+  { val: 'fruta',      label: '🍎 Fruta',       factor: 1.0  },
 ];
 
 function factorCoccion(tipo) {
@@ -1662,9 +1666,20 @@ function factorCoccion(tipo) {
   return t ? t.factor : 1.0;
 }
 
+// Regla de la nutricionista:
+// - Proteína (crudo): se pesa CRUDA con el número del plan; cocida queda ~×0.75 (informativo)
+// - Huevo (cocido): se pesa cocido, tal cual
+// - Vegetal: el número del plan es el peso YA COCIDO; crudo se necesita MÁS (÷0.75)
+// - Fruta: se pesa normal
 function pesoCocinado(gramos, tipo) {
-  if (tipo === 'cocido' || tipo === 'fruta') return null; // ya es el peso final
-  return Math.round(gramos * factorCoccion(tipo));
+  if (tipo === 'crudo') return Math.round(gramos * 0.75); // informativo: cuánto quedará
+  return null;
+}
+
+function pesoCompraCrudo(gramos, tipo) {
+  // Cuánto comprar crudo para obtener los gramos del plan
+  if (tipo === 'vegetal') return Math.round(gramos / 0.75); // se necesita más crudo
+  return null;
 }
 
 function addIngredienteRow(nombre, gramos, coccion) {
@@ -1705,7 +1720,8 @@ function addIngredienteRow(nombre, gramos, coccion) {
              n.includes('mel\u00f3n') || n.includes('sand\u00eda')) coccion = 'fruta';
     else if (n.includes('zanahoria') || n.includes('apio') || n.includes('espinaca') ||
              n.includes('brocoli') || n.includes('br\u00f3coli') || n.includes('habichuela') ||
-             n.includes('batata') || n.includes('calabaza') || n.includes('zapallo')) coccion = 'vegetal';
+             n.includes('batata') || n.includes('calabaza') || n.includes('zapallo') ||
+             n.includes('pepino')) coccion = 'blanqueado';
     else coccion = 'crudo';
   }
 
@@ -1809,27 +1825,40 @@ function calcularPrep() {
 
   // Compras
   let htmlC = ings.map(ing => {
-    const gTotal   = ing.gramos * prepDias;
-    const cocido   = pesoCocinado(gTotal, ing.coccion || 'crudo');
-    const extra    = cocido !== null ? ` <span style="font-size:0.72rem;color:var(--muted);">→ ${fmt(cocido)} cocido</span>` : '';
+    const gTotal  = ing.gramos * prepDias;
+    const tipo    = ing.coccion || 'crudo';
+    const cocido  = pesoCocinado(gTotal, tipo);
+    const comprar = pesoCompraCrudo(gTotal, tipo);
+    let extra = '';
+    if (cocido !== null) {
+      extra = ` <span style="font-size:0.72rem;color:var(--muted);">→ queda ${fmt(cocido)} cocido</span>`;
+    } else if (comprar !== null) {
+      extra = ` <span style="font-size:0.72rem;color:var(--muted);">compra ~${fmt(comprar)} crudo</span>`;
+    }
     return `<div class="result-row">
       <span class="r-name">${ing.nombre}</span>
       <span class="r-val">${fmt(gTotal)}${extra}</span>
     </div>`;
   }).join('');
-  htmlC += resultRow('TOTAL CRUDO', fmt(totalGeneral), true);
+  htmlC += resultRow('TOTAL DEL PLAN', fmt(totalGeneral), true);
   document.getElementById('prep-compras').innerHTML = htmlC;
 
-  // Por bolsa
+  // Por bolsa — el número del plan es lo que va en la bolsa:
+  // proteína se pesa cruda (o su equivalente cocido si armas con carne ya cocida)
   let htmlB = ings.map(ing => {
     const gBolsa = ing.gramos / comidas;
-    const cocido = pesoCocinado(gBolsa, ing.coccion || 'crudo');
-    const extra  = cocido !== null
-      ? `<span style="font-size:0.72rem;color:var(--muted);margin-left:4px;">→ ${cocido.toFixed(0)}g cocido</span>`
-      : '';
+    const tipo   = ing.coccion || 'crudo';
+    let nota = '';
+    if (tipo === 'crudo') {
+      const cocido = Math.round(gBolsa * 0.75);
+      nota = `<span style="font-size:0.72rem;color:var(--muted);margin-left:4px;">crudo · o ${cocido}g cocido</span>`;
+    }
+    if (tipo === 'vegetal')    nota = `<span style="font-size:0.72rem;color:var(--muted);margin-left:4px;">pesar cocido</span>`;
+    if (tipo === 'cocido')     nota = `<span style="font-size:0.72rem;color:var(--muted);margin-left:4px;">pesar cocido</span>`;
+    if (tipo === 'blanqueado') nota = `<span style="font-size:0.72rem;color:var(--muted);margin-left:4px;">blanqueado</span>`;
     return `<div class="result-row" style="flex-wrap:wrap; gap:4px;">
       <span class="r-name">${ing.nombre}</span>
-      <span class="r-val" style="display:flex;align-items:center;gap:4px;">${gBolsa.toFixed(1)} g ${extra}</span>
+      <span class="r-val" style="display:flex;align-items:center;gap:4px;">${gBolsa.toFixed(1)} g ${nota}</span>
     </div>`;
   }).join('');
   htmlB += resultRow('TOTAL BOLSA', gPorBolsa.toFixed(1) + ' g', true);
